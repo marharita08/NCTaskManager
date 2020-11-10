@@ -15,7 +15,11 @@ public class Task {
      * @param time time when task will be done,
      *             it should be a positive number
      */
-    public Task(String title, int time) {
+    public Task(String title, int time) throws IllegalArgumentException {
+        if (time < 0) {
+            throw new IllegalArgumentException(
+                    "Time should be a positive number.");
+        }
         this.title = title;
         this.time = time;
     }
@@ -34,7 +38,20 @@ public class Task {
      *                 that should be less than difference
      *                 between parameters start and end
      */
-    public Task(String title, int start, int end, int interval) {
+    public Task(String title, int start, int end,
+                int interval) throws IllegalArgumentException {
+        if (start < 0 || end < 0) {
+            throw new IllegalArgumentException(
+                    "Start and end should be positive numbers.");
+        }
+        if (start >= end) {
+            throw new IllegalArgumentException(
+                    "Start should be less than end.");
+        }
+        if (interval <= 0 || interval >= end - start) {
+            throw new IllegalArgumentException("Interval should more than zero "
+                    + "and less than difference between end and start.");
+        }
         this.title = title;
         this.start = start;
         this.end = end;
@@ -94,7 +111,11 @@ public class Task {
      * @param time time when task will be done,
      *             it should be a positive number
      */
-    public void setTime(int time) {
+    public void setTime(int time) throws IllegalArgumentException {
+        if (time < 0) {
+            throw new IllegalArgumentException(
+                    "Time should be a positive number.");
+        }
         this.time = time;
         if (repeated) {
             repeated = false;
@@ -151,7 +172,20 @@ public class Task {
      *                  that should be less than difference
      *                  between parameters start and end
      */
-    public void setTime(int start, int end, int interval) {
+    public void setTime(int start, int end,
+                        int interval) throws IllegalArgumentException {
+        if (start < 0 || end < 0) {
+            throw new IllegalArgumentException(
+                    "Start and end should be positive numbers.");
+        }
+        if (start >= end) {
+            throw new IllegalArgumentException(
+                    "Start should be less than end.");
+        }
+        if (interval <= 0 || interval >= end - start) {
+            throw new IllegalArgumentException("Interval should more than zero "
+                    + "and less than difference between start and end.");
+        }
         this.start = start;
         this.end = end;
         this.interval = interval;
@@ -176,8 +210,9 @@ public class Task {
      * -1, if task is nonactive or if task is already done
      */
     public int nextTimeAfter(int current) {
-        if (active && repeated && current < ((end - start) / interval) * interval + start) {
-            if(current < start){
+        if (active && repeated
+                && current < ((end - start) / interval) * interval + start) {
+            if (current < start) {
                 return start;
             } else {
                 return (((current - start) / interval) + 1) * interval + start;
