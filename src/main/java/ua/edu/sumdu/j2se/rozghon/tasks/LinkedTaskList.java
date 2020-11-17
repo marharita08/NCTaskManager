@@ -1,7 +1,6 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
 
-public class LinkedTaskList {
-    private int size; //amount of elements in the list
+public class LinkedTaskList extends AbstractTaskList {
     private Node first; //the first node in the list
     private Node last; //the last node in the list
 
@@ -80,10 +79,6 @@ public class LinkedTaskList {
             }
             return false;
         }
-    }
-
-    public int size() {
-        return size;
     }
 
     public Task getTask(int index) throws IndexOutOfBoundsException {
