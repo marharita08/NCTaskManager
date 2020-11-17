@@ -8,13 +8,15 @@ public class TaskListFactory {
                     + ListTypes.types.ARRAY + " or "
                     + ListTypes.types.LINKED + ", not null");
         }
+        AbstractTaskList taskList = null;
         switch (type) {
             case ARRAY:
-                return new ArrayTaskList();
+                taskList = new ArrayTaskList();
+                break;
             case LINKED:
-                return new LinkedTaskList();
-            default:
-                return null;
+                taskList = new LinkedTaskList();
+                break;
         }
+        return taskList;
     }
 }
