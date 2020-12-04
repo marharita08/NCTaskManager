@@ -49,21 +49,15 @@ public class ArrayTaskList extends AbstractTaskList {
         return task[index];
     }
 
-    public ArrayTaskList incoming(int from,
-                                  int to) throws IllegalArgumentException {
-        if (from >= to) {
-            throw new IllegalArgumentException(
-                    "Parameter from must be less than parameter to");
+    @Override
+    public Object clone() {
+        try {
+            ArrayTaskList taskList = (ArrayTaskList) super.clone();
+            taskList.task = Arrays.copyOf(this.task, this.size);
+            taskList.size = this.size;
+            return taskList;
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError(e);
         }
-        ArrayTaskList taskList = new ArrayTaskList(); //create taskList
-        for (int i = 0; i < size; i++) {
-            /* check whether the task will be executed
-            * in the set interval of time */
-            if (task[i].nextTimeAfter(from) > from
-                    && task[i].nextTimeAfter(from) < to) {
-                taskList.add(task[i]); //add current task to taskList
-            }
-        }
-        return taskList;
     }
 }
