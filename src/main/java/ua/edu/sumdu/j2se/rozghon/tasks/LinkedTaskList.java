@@ -94,23 +94,19 @@ public class LinkedTaskList extends AbstractTaskList {
         return node.task; //return found task
     }
 
-    public LinkedTaskList incoming(int from,
-                                   int to) throws IllegalArgumentException {
-        if (from >= to) {
-            throw new IllegalArgumentException(
-                    "Parameter from must be less than parameter to");
-        }
-        LinkedTaskList taskList = new LinkedTaskList(); //create list
-        Node node = first;
-        while (node != null) {
-            /* check whether the task will be executed
-             * in the set interval of time */
-            if (node.task.nextTimeAfter(from) > from
-                    && node.task.nextTimeAfter(from) < to) {
-                taskList.add(node.task); //add current task to taskList
+    @Override
+    public Object clone() {
+        try {
+            LinkedTaskList taskList = (LinkedTaskList) super.clone();
+            taskList.size = 0;
+            taskList.first = null;
+            taskList.last = null;
+            for (LinkedTaskList.Node i = first; i != null; i = i.next) {
+                taskList.add(i.task);
             }
-            node = node.next; //pass to the next node
+            return taskList;
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError(e);
         }
-        return taskList;
     }
 }

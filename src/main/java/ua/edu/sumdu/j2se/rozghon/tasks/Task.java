@@ -1,6 +1,6 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
 
-public class Task {
+public class Task implements Cloneable {
     private String title;
     private int time;
     private int start;
@@ -221,6 +221,67 @@ public class Task {
             return time;
         } else {
             return -1;
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || this.getClass() != obj.getClass()) {
+            return false;
+        }
+        return this.title.equals(((Task) obj).title)
+                && this.time == ((Task) obj).time
+                && this.start == ((Task) obj).start
+                && this.end == ((Task) obj).end
+                && this.interval == ((Task) obj).interval
+                && this.active == ((Task) obj).active
+                && this.repeated == ((Task) obj).repeated;
+    }
+
+    @Override
+    public int hashCode() {
+        final int PRIME = 23;
+        int result = 1;
+        result = result * PRIME + title.hashCode();
+        result = result * PRIME + time;
+        result = result * PRIME + start;
+        result = result * PRIME + end;
+        result = result * PRIME + interval;
+        result = result * PRIME + (active ? 1 : 0);
+        result = result * PRIME + (repeated ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "\n" + getClass().getName() + "\n"
+                + "Hash Code: " + hashCode() + "\n\n"
+                + "Title: " + title + "\n"
+                + "Time: " + time + "\n"
+                + "Start: " + start + "\n"
+                + "End: " + end + "\n"
+                + "Interval: " + interval + "\n"
+                + "Active: " + active + "\n"
+                + "Repeated: " + repeated + "\n";
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            Task task = (Task) super.clone();
+            task.title = this.title;
+            task.time = this.time;
+            task.start = this.start;
+            task.end = this.end;
+            task.interval = this.interval;
+            task.active = this.active;
+            task.repeated = this.repeated;
+            return task;
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError(e);
         }
     }
 }
