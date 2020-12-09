@@ -1,6 +1,9 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class AbstractTaskList implements Iterable, Cloneable {
     protected int size; //amount of elements in the list
@@ -9,12 +12,15 @@ public abstract class AbstractTaskList implements Iterable, Cloneable {
         return size;
     }
 
-    public AbstractTaskList incoming(int from,
+    public final AbstractTaskList incoming(int from,
                                   int to) throws IllegalArgumentException {
         if (from >= to) {
             throw new IllegalArgumentException(
                     "Parameter from must be less than parameter to");
         }
+        List<Task> list =
+                this.getStream().filter((p) -> p.nextTimeAfter(from) > from
+                && p.nextTimeAfter(from) < to).collect(Collectors.toList());
         AbstractTaskList taskList;
         //create taskList
         if (this.getClass() == ArrayTaskList.class) {
@@ -22,13 +28,8 @@ public abstract class AbstractTaskList implements Iterable, Cloneable {
         } else {
             taskList = TaskListFactory.createTaskList(ListTypes.types.LINKED);
         }
-        for (int i = 0; i < size; i++) {
-            /* check whether the task will be executed
-             * in the set interval of time*/
-            if (getTask(i).nextTimeAfter(from) > from
-                    && getTask(i).nextTimeAfter(from) < to) {
-                taskList.add(getTask(i)); //add current task to taskList
-            }
+        for (Task task:list) {
+            taskList.add(task);
         }
         return taskList;
     }
@@ -36,6 +37,7 @@ public abstract class AbstractTaskList implements Iterable, Cloneable {
     public abstract void add(Task task);
     public abstract boolean remove(Task task);
     public abstract Task getTask(int index);
+    public abstract Stream<Task> getStream();
 
     @Override
     public Iterator<Task> iterator() {

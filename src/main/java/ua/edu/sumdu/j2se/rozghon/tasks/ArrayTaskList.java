@@ -1,5 +1,8 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
+
 import java.util.Arrays;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ArrayTaskList extends AbstractTaskList {
     private final int DEFAULT_SIZE = 10; //setting the default size of the array
@@ -59,5 +62,10 @@ public class ArrayTaskList extends AbstractTaskList {
         } catch (CloneNotSupportedException e) {
             throw new InternalError(e);
         }
+    }
+
+    public Stream<Task> getStream(){
+        Iterable<Task> iterable = () -> this.iterator();
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 }
