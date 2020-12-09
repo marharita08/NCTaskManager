@@ -1,5 +1,8 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
 
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 public class LinkedTaskList extends AbstractTaskList {
     private Node first; //the first node in the list
     private Node last; //the last node in the list
@@ -108,5 +111,10 @@ public class LinkedTaskList extends AbstractTaskList {
         } catch (CloneNotSupportedException e) {
             throw new InternalError(e);
         }
+    }
+
+    public Stream<Task> getStream(){
+        Iterable<Task> iterable = () -> this.iterator();
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 }
