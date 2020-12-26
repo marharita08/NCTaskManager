@@ -1,10 +1,13 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task implements Cloneable {
     private String title;
-    private int time;
-    private int start;
-    private int end;
+    private LocalDateTime time;
+    private LocalDateTime start;
+    private LocalDateTime end;
     private int interval;
     private boolean active;
     private boolean repeated;
@@ -15,10 +18,10 @@ public class Task implements Cloneable {
      * @param time time when task will be done,
      *             it should be a positive number
      */
-    public Task(String title, int time) throws IllegalArgumentException {
-        if (time < 0) {
+    public Task(String title, LocalDateTime time) throws IllegalArgumentException {
+        if (time == null) {
             throw new IllegalArgumentException(
-                    "Time should be a positive number.");
+                    "Time should be not null.");
         }
         this.title = title;
         this.time = time;
@@ -38,17 +41,19 @@ public class Task implements Cloneable {
      *                 that should be less than difference
      *                 between parameters start and end
      */
-    public Task(String title, int start, int end,
+    public Task(String title, LocalDateTime start, LocalDateTime end,
                 int interval) throws IllegalArgumentException {
-        if (start < 0 || end < 0) {
+        if (start == null || end == null) {
             throw new IllegalArgumentException(
-                    "Start and end should be positive numbers.");
+                    "Start and end should be not null.");
         }
-        if (start >= end) {
+        if (start.isAfter(end)) {
             throw new IllegalArgumentException(
-                    "Start should be less than end.");
+                    "Start should be before end.");
         }
-        if (interval <= 0 || interval >= end - start) {
+        Duration duration = Duration.between(start, end);
+        int diff = (int)Math.abs(duration.toSeconds());
+        if (interval <= 0 || interval >= diff) {
             throw new IllegalArgumentException("Interval should more than zero "
                     + "and less than difference between end and start.");
         }
@@ -97,7 +102,7 @@ public class Task implements Cloneable {
      * @return time when task will be done, if task is non repetitive;
      * time when task will start, if task is repetitive
      */
-    public int getTime() {
+    public LocalDateTime getTime() {
         if (repeated) {
             return start;
         } else {
@@ -111,16 +116,16 @@ public class Task implements Cloneable {
      * @param time time when task will be done,
      *             it should be a positive number
      */
-    public void setTime(int time) throws IllegalArgumentException {
-        if (time < 0) {
+    public void setTime(LocalDateTime time) throws IllegalArgumentException {
+        if (time == null) {
             throw new IllegalArgumentException(
-                    "Time should be a positive number.");
+                    "Time should be not null.");
         }
         this.time = time;
         if (repeated) {
             repeated = false;
-            start = 0;
-            end = 0;
+            start = null;
+            end = null;
             interval = 0;
         }
     }
@@ -130,7 +135,7 @@ public class Task implements Cloneable {
      * @return time when task will start, if task is repetitive;
      * time when task will be done, if task is non repetitive
      */
-    public int getStartTime() {
+    public LocalDateTime getStartTime() {
         if (repeated) {
             return start;
         } else {
@@ -142,7 +147,7 @@ public class Task implements Cloneable {
      * @return time when task will end, if task is repetitive;
      * time when task will be done, if task is non repetitive
      */
-    public int getEndTime() {
+    public LocalDateTime getEndTime() {
         if (repeated) {
             return end;
         } else {
@@ -172,17 +177,19 @@ public class Task implements Cloneable {
      *                  that should be less than difference
      *                  between parameters start and end
      */
-    public void setTime(int start, int end,
+    public void setTime(LocalDateTime start, LocalDateTime end,
                         int interval) throws IllegalArgumentException {
-        if (start < 0 || end < 0) {
+        if (start ==null || end == null) {
             throw new IllegalArgumentException(
-                    "Start and end should be positive numbers.");
+                    "Start and end should be not null.");
         }
-        if (start >= end) {
+        if (start.isAfter(end)) {
             throw new IllegalArgumentException(
-                    "Start should be less than end.");
+                    "Start should be before end.");
         }
-        if (interval <= 0 || interval >= end - start) {
+        Duration duration = Duration.between(start, end);
+        int diff = (int)Math.abs(duration.toSeconds());
+        if (interval <= 0 || interval >= diff) {
             throw new IllegalArgumentException("Interval should more than zero "
                     + "and less than difference between start and end.");
         }
@@ -190,7 +197,7 @@ public class Task implements Cloneable {
         this.end = end;
         this.interval = interval;
         if (!repeated) {
-            time = 0;
+            time = null;
             repeated = true;
         }
     }
@@ -209,19 +216,26 @@ public class Task implements Cloneable {
      * @return next time of doing task;
      * -1, if task is nonactive or if task is already done
      */
-    public int nextTimeAfter(int current) {
-        if (active && repeated
-                && current < ((end - start) / interval) * interval + start) {
-            if (current < start) {
-                return start;
-            } else {
-                return (((current - start) / interval) + 1) * interval + start;
+    public LocalDateTime nextTimeAfter(LocalDateTime current) {
+        if (active && repeated){
+            Duration duration = Duration.between(start, end);
+            long diff = Math.abs(duration.toSeconds());
+            if (current.isBefore(start.plusSeconds((diff / interval) * interval))) {
+                if (current.isBefore(start)) {
+                    return start;
+                } else {
+                    if(start.equals(current)){
+                        return start.plusSeconds(interval);
+                    }
+                    duration = Duration.between(start, current);
+                    diff = Math.abs(duration.toSeconds());
+                    return start.plusSeconds(((diff / interval) + 1) * interval);
+                }
             }
-        } else if (active && !repeated && current < time) {
+        } else if (active && !repeated && current.isBefore(time)) {
             return time;
-        } else {
-            return -1;
         }
+        return null;
     }
 
     @Override
@@ -246,9 +260,13 @@ public class Task implements Cloneable {
         final int PRIME = 23;
         int result = 1;
         result = result * PRIME + title.hashCode();
-        result = result * PRIME + time;
-        result = result * PRIME + start;
-        result = result * PRIME + end;
+        if(!repeated) {
+            result = result * PRIME + time.hashCode();
+        }
+        if(repeated) {
+            result = result * PRIME + start.hashCode();
+            result = result * PRIME + end.hashCode();
+        }
         result = result * PRIME + interval;
         result = result * PRIME + (active ? 1 : 0);
         result = result * PRIME + (repeated ? 1 : 0);

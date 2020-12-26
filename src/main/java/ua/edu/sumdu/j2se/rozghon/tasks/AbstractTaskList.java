@@ -1,9 +1,9 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
 
+import java.time.LocalDateTime;
 import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public abstract class AbstractTaskList implements Iterable, Cloneable {
     protected int size; //amount of elements in the list
@@ -12,15 +12,13 @@ public abstract class AbstractTaskList implements Iterable, Cloneable {
         return size;
     }
 
-    public final AbstractTaskList incoming(int from,
-                                  int to) throws IllegalArgumentException {
-        if (from >= to) {
+    public final AbstractTaskList incoming(LocalDateTime from,
+                                           LocalDateTime to)
+            throws IllegalArgumentException {
+        if (from.isAfter(to) || from.isEqual(to)) {
             throw new IllegalArgumentException(
-                    "Parameter from must be less than parameter to");
+                    "'From' must be before 'to'");
         }
-        List<Task> list =
-                this.getStream().filter((p) -> p.nextTimeAfter(from) > from
-                && p.nextTimeAfter(from) < to).collect(Collectors.toList());
         AbstractTaskList taskList;
         //create taskList
         if (this.getClass() == ArrayTaskList.class) {
@@ -28,16 +26,20 @@ public abstract class AbstractTaskList implements Iterable, Cloneable {
         } else {
             taskList = TaskListFactory.createTaskList(ListTypes.types.LINKED);
         }
-        for (Task task:list) {
-            taskList.add(task);
-        }
+        this.getStream().filter(p -> p.nextTimeAfter(from) != null
+                && (p.nextTimeAfter(from).isBefore(to)
+                || p.nextTimeAfter(from).isEqual(to))).forEach(taskList::add);
         return taskList;
+    }
+
+    public Stream<Task> getStream(){
+        Iterable<Task> iterable = () -> this.iterator();
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 
     public abstract void add(Task task);
     public abstract boolean remove(Task task);
     public abstract Task getTask(int index);
-    public abstract Stream<Task> getStream();
 
     @Override
     public Iterator<Task> iterator() {
