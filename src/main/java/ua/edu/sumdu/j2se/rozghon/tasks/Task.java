@@ -1,9 +1,10 @@
 package ua.edu.sumdu.j2se.rozghon.tasks;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class Task implements Cloneable {
+public class Task implements Cloneable, Serializable {
     private String title;
     private LocalDateTime time;
     private LocalDateTime start;
@@ -12,6 +13,7 @@ public class Task implements Cloneable {
     private boolean active;
     private boolean repeated;
 
+    public Task(){}
     /**
      * Constructor that creates non repetitive task
      * @param title name of task
@@ -187,12 +189,6 @@ public class Task implements Cloneable {
             throw new IllegalArgumentException(
                     "Start should be before end.");
         }
-        Duration duration = Duration.between(start, end);
-        int diff = (int)Math.abs(duration.toSeconds());
-        if (interval <= 0 || interval >= diff) {
-            throw new IllegalArgumentException("Interval should more than zero "
-                    + "and less than difference between start and end.");
-        }
         this.start = start;
         this.end = end;
         this.interval = interval;
@@ -247,9 +243,12 @@ public class Task implements Cloneable {
             return false;
         }
         return this.title.equals(((Task) obj).title)
-                && this.time == ((Task) obj).time
-                && this.start == ((Task) obj).start
-                && this.end == ((Task) obj).end
+                && (this.time == null ? this.time == ((Task) obj).time
+                : this.time.isEqual(((Task) obj).time))
+                && (this.start == null ? this.start == ((Task) obj).start
+                : this.start.isEqual(((Task) obj).start))
+                && (this.end == null ? this.end == ((Task) obj).end
+                : this.end.isEqual(((Task) obj).end))
                 && this.interval == ((Task) obj).interval
                 && this.active == ((Task) obj).active
                 && this.repeated == ((Task) obj).repeated;
