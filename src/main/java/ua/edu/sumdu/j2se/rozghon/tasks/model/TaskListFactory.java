@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.rozghon.tasks;
+package ua.edu.sumdu.j2se.rozghon.tasks.model;
 
 public class TaskListFactory {
     public static AbstractTaskList createTaskList(ListTypes.types type)

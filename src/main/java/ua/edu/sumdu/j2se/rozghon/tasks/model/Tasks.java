@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.rozghon.tasks;
+package ua.edu.sumdu.j2se.rozghon.tasks.model;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;

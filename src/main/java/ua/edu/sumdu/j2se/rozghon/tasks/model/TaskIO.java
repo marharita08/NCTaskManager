@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.rozghon.tasks;
+package ua.edu.sumdu.j2se.rozghon.tasks.model;
 
 import com.google.gson.Gson;
 import java.io.*;
@@ -17,7 +17,8 @@ public class TaskIO {
                 output.writeInt(task.getRepeatInterval());
                 output.writeLong(task.getTime().toEpochSecond(ZoneOffset.UTC));
                 if (task.isRepeated()) {
-                    output.writeLong(task.getEndTime().toEpochSecond(ZoneOffset.UTC));
+                    output.writeLong(
+                            task.getEndTime().toEpochSecond(ZoneOffset.UTC));
                 }
             }
         } catch (IOException e) {
@@ -102,8 +103,11 @@ public class TaskIO {
     public static void readText(AbstractTaskList tasks, File file) {
         try (FileReader input = new FileReader(file)) {
             read(tasks, input);
+        } catch (FileNotFoundException e) {
+
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + e,
+                    "Error Message Box", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

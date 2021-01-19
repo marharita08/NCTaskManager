@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.rozghon.tasks;
+package ua.edu.sumdu.j2se.rozghon.tasks.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -6,7 +6,8 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class AbstractTaskList implements Iterable, Cloneable, Serializable {
+public abstract class AbstractTaskList
+        implements Iterable, Cloneable, Serializable {
     protected int size; //amount of elements in the list
 
     public int size() {
@@ -33,7 +34,7 @@ public abstract class AbstractTaskList implements Iterable, Cloneable, Serializa
         return taskList;
     }
 
-    public Stream<Task> getStream(){
+    public Stream<Task> getStream() {
         Iterable<Task> iterable = () -> this.iterator();
         return StreamSupport.stream(iterable.spliterator(), false);
     }
