@@ -4,7 +4,7 @@ public class LinkedTaskList extends AbstractTaskList {
     private Node first; //the first node in the list
     private Node last; //the last node in the list
 
-    private class Node {
+    private static class Node {
         private Task task; //element of the list
         private Node next; //next node in the list
         private Node prev; //previous node in the list

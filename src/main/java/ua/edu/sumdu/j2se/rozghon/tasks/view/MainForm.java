@@ -106,21 +106,21 @@ public class MainForm extends JFrame {
         deleteAllTasks.setEnabled(false);
     }
 
-    public class DeleteTask implements ActionListener {
+    public static class DeleteTask implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             new DeleteTaskForm();
         }
     }
 
-    public class AddTask implements ActionListener {
+    public static class AddTask implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             new AddTaskForm();
         }
     }
 
-    public class EditTask implements ActionListener {
+    public static class EditTask implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             new EditTaskForm();
@@ -141,14 +141,14 @@ public class MainForm extends JFrame {
         }
     }
 
-    public class MailAction implements ActionListener {
+    public static class MailAction implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             new MailSettings();
         }
     }
 
-    public class DeleteAllAction implements ActionListener {
+    public static class DeleteAllAction implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             int result = JOptionPane.showConfirmDialog(
