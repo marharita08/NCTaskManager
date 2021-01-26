@@ -4,8 +4,11 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import org.apache.log4j.Logger;
 
 public class TaskIO {
+    private static final Logger log = Logger.getLogger(TaskIO.class);
+
     public static void write(AbstractTaskList tasks, OutputStream out) {
         try (DataOutputStream output = new DataOutputStream(out)) {
             output.writeInt(tasks.size());
@@ -22,7 +25,7 @@ public class TaskIO {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -48,7 +51,7 @@ public class TaskIO {
                 tasks.add(task);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -56,7 +59,7 @@ public class TaskIO {
         try (FileOutputStream output = new FileOutputStream(file)) {
             write(tasks, output);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -64,7 +67,7 @@ public class TaskIO {
         try (FileInputStream input = new FileInputStream(file)) {
             read(tasks, input);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -73,7 +76,7 @@ public class TaskIO {
         try (BufferedWriter output = new BufferedWriter(out)) {
             output.write(gson.toJson(tasks));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -89,25 +92,22 @@ public class TaskIO {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
     public static void writeText(AbstractTaskList tasks, File file) {
         try (FileWriter output = new FileWriter(file)) {
             write(tasks, output);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
     public static void readText(AbstractTaskList tasks, File file) {
         try (FileReader input = new FileReader(file)) {
             read(tasks, input);
-        } catch (FileNotFoundException e) {
-
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error: " + e,
-                    "Error Message Box", JOptionPane.ERROR_MESSAGE);
+            log.error(e);
         }
     }
 }
