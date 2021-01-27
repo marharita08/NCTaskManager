@@ -4,11 +4,16 @@ import org.apache.log4j.Logger;
 import ua.edu.sumdu.j2se.rozghon.tasks.model.Task;
 
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 public class ScreenNotification implements Notification {
     private static final Logger log =
             Logger.getLogger(ScreenNotification.class);
+    private static final DateTimeFormatter formatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     @Override
     public void sendNotification(Set<Task> set) {
         if (SystemTray.isSupported()) {
@@ -33,6 +38,7 @@ public class ScreenNotification implements Notification {
                 i++;
             }
             trayIcon.setToolTip("Notification: " + text); //add toolTip
+            System.out.println(LocalDateTime.now().format(formatter) + " Notification: " + text);
             Toolkit.getDefaultToolkit().beep(); //add sound
             //send notification
             trayIcon.displayMessage("Notification", text,
