@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class Controller {
+    private static Controller instance;
     private static AbstractTaskList taskList; //buffer
     private static final Logger log = Logger.getLogger(Controller.class);
     private static NotificationManager notificationManager;
@@ -26,12 +27,23 @@ public class Controller {
     private static DeleteTaskForm deleteTaskForm;
     private static EditTaskForm editTaskForm;
 
-    public static void readData(MainForm form) {
-        mainForm = form;
+    private Controller() {
         taskList = new ArrayTaskList();
         log.info("Read list from file to buffer");
         TaskIO.readText(taskList,
                 new File("src/main/resources/data.txt")); //read data
+        createNotificationManager();
+    }
+
+    public static Controller getInstance() {
+        if (instance == null) {
+            instance = new Controller();
+        }
+        return instance;
+    }
+
+    public void setMainForm(MainForm form) {
+        mainForm = form;
         if (taskList.size() == 0) {
             //disable all buttons apart 'Add task' on MainForm
             mainForm.disableButtons();
@@ -39,7 +51,7 @@ public class Controller {
         }
     }
 
-    public static void createNotificationManager() {
+    private void createNotificationManager() {
         File file = new File("src/main/resources/mail.properties.txt");
         Properties properties = new Properties();
         try {
@@ -53,10 +65,6 @@ public class Controller {
         notificationManager.start();
     }
 
-    public static AbstractTaskList getTaskList() {
-        return taskList;
-    }
-
     public static class DeleteTask implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -66,7 +74,7 @@ public class Controller {
         }
     }
 
-    public static void closeDeleteForm() {
+    public void closeDeleteForm() {
         deleteTaskForm = null;
     }
 
@@ -79,7 +87,7 @@ public class Controller {
         }
     }
 
-    public static void closeAddForm() {
+    public void closeAddForm() {
         addTaskForm = null;
     }
 
@@ -114,7 +122,7 @@ public class Controller {
         }
     }
 
-    public static void closeEditForm() {
+    public void closeEditForm() {
         editTaskForm = null;
     }
 

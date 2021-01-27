@@ -48,7 +48,7 @@ public class EditTaskForm extends JFrame {
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             dispose();
-            Controller.closeEditForm();
+            Controller.getInstance().closeEditForm();
         }
     }
 
@@ -189,7 +189,7 @@ public class EditTaskForm extends JFrame {
                 "No such task.", JOptionPane.ERROR_MESSAGE);
         log.error("No such task");
         dispose();
-        Controller.closeEditForm();
+        Controller.getInstance().closeEditForm();
     }
 
     public void showRepetitiveFields() {

@@ -32,7 +32,6 @@ public class AddTaskForm extends JFrame {
         setIconImage(Toolkit.getDefaultToolkit().getImage(
                 "src/main/resources/task.png"));
         setSize(300, 220);
-        this.setTitle("Add Task");
         setVisible(true);
     }
 
@@ -40,7 +39,7 @@ public class AddTaskForm extends JFrame {
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             dispose();
-            Controller.closeAddForm();
+            Controller.getInstance().closeAddForm();
         }
     }
 
@@ -200,7 +199,6 @@ public class AddTaskForm extends JFrame {
         JOptionPane.showMessageDialog(null,
                 "Task was added successfully.",
                 "Message", JOptionPane.INFORMATION_MESSAGE);
-        //dispose();
     }
 
     public void exceptionMessages(Exception exception) {

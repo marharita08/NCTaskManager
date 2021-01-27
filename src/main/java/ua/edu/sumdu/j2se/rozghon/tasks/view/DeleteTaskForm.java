@@ -24,7 +24,7 @@ public class DeleteTaskForm extends JFrame {
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             dispose();
-            Controller.closeDeleteForm();
+            Controller.getInstance().closeDeleteForm();
         }
     }
 
