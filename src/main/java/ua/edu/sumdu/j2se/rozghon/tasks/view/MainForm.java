@@ -2,25 +2,33 @@ package ua.edu.sumdu.j2se.rozghon.tasks.view;
 
 import org.apache.log4j.Logger;
 import ua.edu.sumdu.j2se.rozghon.tasks.controller.Controller;
+import ua.edu.sumdu.j2se.rozghon.tasks.model.AbstractTaskList;
+import ua.edu.sumdu.j2se.rozghon.tasks.model.Task;
+import ua.edu.sumdu.j2se.rozghon.tasks.model.Tasks;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 public class MainForm extends JFrame {
     private JTable table;
     private JComboBox<String> comboBox;
-    private static JMenuItem deleteTask;
-    private static JMenuItem deleteAllTasks;
-    private static JMenuItem editTask;
-    private static JButton calendar;
-    private static JButton showTasks;
+    private JMenuItem deleteTask;
+    private JMenuItem deleteAllTasks;
+    private JMenuItem editTask;
+    private JButton calendar;
+    private JButton showTasks;
     private static final Logger log = Logger.getLogger(MainForm.class);
+    private static final DateTimeFormatter formatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public MainForm(){
+    public MainForm() {
         super("Task Manager");
         createMenu();
         createContent();
@@ -39,20 +47,20 @@ public class MainForm extends JFrame {
         }
     }
 
-    private void createMenu(){
+    private void createMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Menu");
         //create menu items
         JMenuItem addTask = new JMenuItem("Add task");
-        addTask.addActionListener(new AddTask());
+        addTask.addActionListener(new Controller.AddTask());
         editTask = new JMenuItem("Edit task");
-        editTask.addActionListener(new EditTask());
+        editTask.addActionListener(new Controller.EditTask());
         deleteTask = new JMenuItem("Delete task");
-        deleteTask.addActionListener( new DeleteTask());
+        deleteTask.addActionListener(new Controller.DeleteTask());
         deleteAllTasks = new JMenuItem("Delete all tasks");
-        deleteAllTasks.addActionListener(new DeleteAllAction());
+        deleteAllTasks.addActionListener(new Controller.DeleteAllAction());
         JMenuItem mail = new JMenuItem("Mail settings");
-        mail.addActionListener(new MailAction());
+        mail.addActionListener(new Controller.MailAction());
         //add menu items to menu
         menu.add(addTask);
         menu.add(editTask);
@@ -63,14 +71,14 @@ public class MainForm extends JFrame {
         setJMenuBar(menuBar);
     }
 
-    private void createContent(){
+    private void createContent() {
         DefaultTableModel model = new DefaultTableModel();
         table = new JTable(model); //create table
         //create buttons
         calendar = new JButton("Calendar");
-        calendar.addActionListener(new CalendarAction());
+        calendar.addActionListener(new Controller.CalendarAction());
         showTasks = new JButton("Show All Tasks");
-        showTasks.addActionListener(new ShowTaskAction());
+        showTasks.addActionListener(new Controller.ShowTaskAction());
         //create comboBox
         comboBox = new JComboBox<>();
         comboBox.setEditable(true);
@@ -90,7 +98,7 @@ public class MainForm extends JFrame {
         setContentPane(contents);
     }
 
-    public static void enableButtons () {
+    public void enableButtons() {
         showTasks.setEnabled(true);
         calendar.setEnabled(true);
         deleteTask.setEnabled(true);
@@ -106,59 +114,87 @@ public class MainForm extends JFrame {
         deleteAllTasks.setEnabled(false);
     }
 
-    public static class DeleteTask implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            new DeleteTaskForm();
-        }
-    }
-
-    public static class AddTask implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            new AddTaskForm();
-        }
-    }
-
-    public static class EditTask implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            new EditTaskForm();
-        }
-    }
-
-    public class ShowTaskAction implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            Controller.showTasks(table);
-        }
-    }
-
-    public class CalendarAction implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            Controller.showCalendar(table, comboBox);
-        }
-    }
-
-    public static class MailAction implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            new MailSettings();
-        }
-    }
-
-    public static class DeleteAllAction implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            int result = JOptionPane.showConfirmDialog(
-                    null,
-                    "Do you confirm deletion of all tasks?",
-                    "Confirmation",
-                    JOptionPane.YES_NO_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
-                Controller.deleteAll();
+    public void showTasks(AbstractTaskList taskList) {
+        //fill table with data about all tasks from list
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setRowCount(0);
+        model.setColumnCount(0);
+        model.addColumn("Parameter");
+        model.addColumn("Value");
+        for (Object task: taskList) {
+            model.addRow(new Object[]{"title", ((Task) task).getTitle()});
+            model.addRow(new Object[]{"active",
+                    ((Task) task).isActive() ? "+" : "-"});
+            if (((Task) task).isRepeated()) {
+                model.addRow(new Object[]{"start time",
+                        ((Task) task).getStartTime().format(formatter)});
+                model.addRow(new Object[]{"end time",
+                        ((Task) task).getEndTime().format(formatter)});
+                double interval =
+                        (double) ((Task) task).getRepeatInterval() / 86400;
+                String unit = " days";
+                if (interval < 1) {
+                    interval =
+                            (double) ((Task) task).getRepeatInterval() / 3600;
+                    unit = " hours";
+                }
+                if (interval < 1) {
+                    interval =
+                            (double) ((Task) task).getRepeatInterval() / 60;
+                    unit = " minutes";
+                }
+                model.addRow(new Object[]{"interval",
+                        interval + unit});
+            } else {
+                model.addRow(new Object[]{"time",
+                        ((Task) task).getTime().format(formatter)});
             }
+            model.addRow(new Object[]{" ", " "});
         }
+    }
+
+    public void showCalendar(AbstractTaskList taskList) {
+        //fill table with data about active tasks in date-tasks format
+        SortedMap<LocalDateTime, Set<Task>> map;
+        switch (comboBox.getSelectedIndex()) {
+            case 1:
+                map = Tasks.calendar(taskList, LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(30));
+                break;
+            case 2:
+                map = Tasks.calendar(taskList, LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(365));
+                break;
+            default:
+                map = Tasks.calendar(taskList, LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(7));
+                break;
+        }
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setRowCount(0);
+        model.setColumnCount(0);
+        model.addColumn("Date");
+        model.addColumn("Task");
+        for (Map.Entry<LocalDateTime, Set<Task>> entry : map.entrySet()) {
+            Set<Task> set = entry.getValue();
+            String text = "";
+            int j = 0;
+            for (Task task:set) {
+                text = text + task.getTitle();
+                if (j < set.size() - 1) {
+                    text = text + ", ";
+                }
+                j++;
+            }
+            model.addRow(new Object[]{entry.getKey().format(formatter), text});
+        }
+    }
+
+    public boolean confirmation() {
+        return JOptionPane.showConfirmDialog(
+                null,
+                "Do you confirm deletion of all tasks?",
+                "Confirmation",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
 }

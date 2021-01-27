@@ -4,36 +4,37 @@ import org.apache.log4j.Logger;
 import ua.edu.sumdu.j2se.rozghon.tasks.controller.notification.MailNotification;
 import ua.edu.sumdu.j2se.rozghon.tasks.controller.notification.NotificationManager;
 import ua.edu.sumdu.j2se.rozghon.tasks.model.*;
-import ua.edu.sumdu.j2se.rozghon.tasks.view.MainForm;
+import ua.edu.sumdu.j2se.rozghon.tasks.view.*;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class Controller {
     private static AbstractTaskList taskList; //buffer
-    private static final DateTimeFormatter formatter =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final Logger log = Logger.getLogger(Controller.class);
     private static NotificationManager notificationManager;
+    private static MainForm mainForm;
+    private static AddTaskForm addTaskForm;
+    private static DeleteTaskForm deleteTaskForm;
+    private static EditTaskForm editTaskForm;
 
-    public static void readData() {
+    public static void readData(MainForm form) {
+        mainForm = form;
         taskList = new ArrayTaskList();
         log.info("Read list from file to buffer");
-        TaskIO.readText(taskList, new File("src/main/resources/data.txt")); //read data
+        TaskIO.readText(taskList,
+                new File("src/main/resources/data.txt")); //read data
         if (taskList.size() == 0) {
-            JOptionPane.showMessageDialog(null,
-                    "Your task list is empty.",
-                    "Message", JOptionPane.INFORMATION_MESSAGE);
             //disable all buttons apart 'Add task' on MainForm
-            MainForm.disableButtons();
+            mainForm.disableButtons();
             log.info("List is empty");
         }
     }
@@ -46,274 +47,145 @@ public class Controller {
         } catch (IOException e) {
             log.error(e);
         }
-        MailNotification.setActive(properties.getProperty("to") != null);
+        MailNotification.setActive(properties.getProperty("recipient") != null);
         notificationManager = new NotificationManager(taskList);
         notificationManager.setDaemon(true);
         notificationManager.start();
     }
 
-    public static void fillComboBox(JComboBox<String> comboBox) {
-        for (Object task:taskList) {
-            //fill comboBox with task titles
-            comboBox.addItem(((Task) task).getTitle());
+    public static AbstractTaskList getTaskList() {
+        return taskList;
+    }
+
+    public static class DeleteTask implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            if (deleteTaskForm == null) {
+                deleteTaskForm = new DeleteTaskForm(taskList);
+            }
         }
     }
 
-    public static boolean fillEditFields(JTextField titleField,
-                                         JCheckBox active,
-                                         JCheckBox repetitive,
-                                         JTextField timeField,
-                                         JTextField startField,
-                                         JTextField endField,
-                                         JTextField intervalField,
-                                         JComboBox<String> titleList,
-                                         JComboBox<String> unit) {
-        String title = String.valueOf(titleList.getSelectedItem());
-        for (Object task1:taskList) {
-            if (((Task) task1).getTitle().equals(title)) {
-                //fill fields for edition with data about chosen task
-                Task task = (Task) task1;
-                titleField.setText(task.getTitle());
-                active.setSelected(task.isActive());
-                repetitive.setSelected(task.isRepeated());
-                if (task.isRepeated()) {
-                    startField.setText(task.getStartTime().format(formatter));
-                    endField.setText(task.getEndTime().format(formatter));
-                    double interval = (double) task.getRepeatInterval() / 86400;
-                    unit.setSelectedIndex(2);
-                    if (interval < 1) {
-                        interval = (double) task.getRepeatInterval() / 3600;
-                        unit.setSelectedIndex(1);
-                    }
-                    if (interval < 1) {
-                        interval = (double) task.getRepeatInterval() / 60;
-                        unit.setSelectedIndex(0);
-                    }
-                    intervalField.setText(String.valueOf(interval));
-                    timeField.setText(task.getTime().format(formatter));
-                } else {
-                    timeField.setText(task.getTime().format(formatter));
-                    startField.setText(task.getTime().format(formatter));
-                    endField.setText(task.getTime().plusDays(1).format(formatter));
-                }
-                return true;
-            }
-        }
-        return false;
+    public static void closeDeleteForm() {
+        deleteTaskForm = null;
     }
 
-    public static void showTasks(JTable table) {
-        //fill table with data about all tasks from list
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.setRowCount(0);
-        model.setColumnCount(0);
-        model.addColumn("Parameter");
-        model.addColumn("Value");
-        for (Object task: taskList) {
-            model.addRow(new Object[]{"title", ((Task) task).getTitle()});
-            model.addRow(new Object[]{"active",
-                    ((Task) task).isActive() ? "+" : "-"});
-            if (((Task) task).isRepeated()) {
-                model.addRow(new Object[]{"start time",
-                        ((Task) task).getStartTime().format(formatter)});
-                model.addRow(new Object[]{"end time",
-                        ((Task) task).getEndTime().format(formatter)});
-                double interval = (double) ((Task) task).getRepeatInterval() / 86400;
-                String unit = " days";
-                if (interval < 1) {
-                    interval = (double) ((Task) task).getRepeatInterval() / 3600;
-                    unit = " hours";
-                }
-                if (interval < 1) {
-                    interval = (double) ((Task) task).getRepeatInterval() / 60;
-                    unit = " minutes";
-                }
-                model.addRow(new Object[]{"interval",
-                        interval + unit});
-            } else {
-                model.addRow(new Object[]{"time",
-                        ((Task) task).getTime().format(formatter)});
+    public static class AddTask implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            if (addTaskForm == null) {
+                addTaskForm = new AddTaskForm();
             }
-            model.addRow(new Object[]{" ", " "});
         }
     }
 
-    public static void showCalendar(JTable table, JComboBox<String> period) {
-        //fill table with data about active tasks in date-tasks format
-        SortedMap<LocalDateTime, Set<Task>> map;
-        switch (period.getSelectedIndex()) {
-            case 1:
-                map = Tasks.calendar(taskList, LocalDateTime.now(),
-                        LocalDateTime.now().plusDays(30));
-                break;
-            case 2:
-                map = Tasks.calendar(taskList, LocalDateTime.now(),
-                        LocalDateTime.now().plusDays(365));
-                break;
-            default:
-                map = Tasks.calendar(taskList, LocalDateTime.now(),
-                        LocalDateTime.now().plusDays(7));
-                break;
-        }
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.setRowCount(0);
-        model.setColumnCount(0);
-        model.addColumn("Date");
-        model.addColumn("Task");
-        for (Map.Entry<LocalDateTime, Set<Task>> entry : map.entrySet()) {
-            Set<Task> set = entry.getValue();
-            String text = "";
-            int j = 0;
-            for (Task task:set) {
-                text = text + task.getTitle();
-                if (j < set.size() - 1) {
-                    text = text + ", ";
-                }
-                j++;
+    public static void closeAddForm() {
+        addTaskForm = null;
+    }
+
+    public static class EditTask implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            if (editTaskForm == null) {
+                editTaskForm = new EditTaskForm(taskList);
             }
-            model.addRow(new Object[]{entry.getKey().format(formatter), text});
         }
     }
 
-    static public boolean addTask(JTextField titleField, JCheckBox activeField,
-                                  JCheckBox repetitive, JTextField timeField,
-                                  JTextField startTime, JTextField endTime,
-                                  JTextField intervalField, JComboBox<String> unit) {
-        //add repetitive task
-        //read data from AddForm
-        String title = titleField.getText();
-        try {
-            if (title.equals("")) {
-                titleMessage();
-                return false;
-            }
-            int max = 0;
-            int i = 0;
-            for (Object task1 : taskList) {
-                String title1 = ((Task) task1).getTitle();
-                if (Pattern.matches("^" + title + " [0-9]$", title1)) {
-                    i = Integer.parseInt(title1, title1.length() - 1,
-                            title1.length(), 10) + 1;
-                } else if (Pattern.matches("^" + title + " [0-9]{2}$", title1)) {
-                    i = Integer.parseInt(((Task) task1).getTitle(), title1.length() - 2,
-                            title1.length(), 10) + 1;
-                } else if (title.equals(title1)) {
-                    i = 1;
-                }
-                if (i > max) {
-                    max = i;
-                }
-            }
-            if (max > 0) {
-                //add index if task with set title already exist
-                title = title + " " + max;
-            }
-            Task task;
-            if (repetitive.isSelected()) {
-                LocalDateTime start =
-                        LocalDateTime.parse(startTime.getText(), formatter);
-                LocalDateTime end =
-                        LocalDateTime.parse(endTime.getText(), formatter);
-                int interval;
-                switch (unit.getSelectedIndex()){
-                    case 0:
-                        interval = (int) (Double.parseDouble(
-                                intervalField.getText()) * 60);
-                        break;
-                    case 2:
-                        interval = (int) (Double.parseDouble(
-                                intervalField.getText()) * 86400);
-                        break;
-                    default:
-                        interval = (int) (Double.parseDouble(
-                                intervalField.getText()) * 3600);
-                        break;
-                }
-                //create repetitive task
-                task = new Task(title, start, end, interval);
-            } else {
-                LocalDateTime time = LocalDateTime.parse(
-                        timeField.getText(), formatter);
-                task = new Task(title, time); //create non repetitive task
-            }
-            task.setActive(activeField.isSelected());
-            taskList.add(task); //add created task to the list
-            TaskIO.writeText(taskList,
-                    new File("src/main/resources/data.txt")); //write list to the file
-            JOptionPane.showMessageDialog(null,
-                    "Task was added successfully.",
-                    "Message", JOptionPane.INFORMATION_MESSAGE);
-            if (taskList.size() == 1) {
-                //if list was empty enable all buttons on MainForm
-                MainForm.enableButtons();
-            }
-            log.info("Task was added to list");
-            notificationManager.setTaskList(taskList);
-            return true;
-        } catch (DateTimeParseException exception) {
-            dateMessage(exception);
-            return false;
-        } catch (NumberFormatException exception) {
-            intervalMessage(exception);
-            return false;
-        } catch (IllegalArgumentException exception){
-            datesMessage(exception);
-            return false;
+    public static class MailAction implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            new MailSettings();
         }
     }
 
-    public static void deleteTask(JComboBox<String> titleList) {
-        String title = String.valueOf(titleList.getSelectedItem());
-        int i = 0;
-        for (Object task:taskList) {
-            if (((Task) task).getTitle().equals(title)) {
-                taskList.remove((Task) task); //delete chosen task from list
+    public static class ShowTaskAction implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            mainForm.showTasks(taskList);
+        }
+    }
+
+    public static class EditAction implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            //fill fields with parameters of chosen task
+            editTaskForm.fillEditFields(taskList);
+        }
+    }
+
+    public static void closeEditForm() {
+        editTaskForm = null;
+    }
+
+    public static class CalendarAction implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            mainForm.showCalendar(taskList);
+        }
+    }
+
+    public static class DeleteAllAction implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            if (mainForm.confirmation()) {
+                taskList = new ArrayTaskList();
+                //write list to the file
                 TaskIO.writeText(taskList,
-                        new File("src/main/resources/data.txt")); //write list to the file
-                JOptionPane.showMessageDialog(null,
-                            "Task was deleted successfully.",
-                        "Message", JOptionPane.INFORMATION_MESSAGE);
-                log.info("Task was deleted from list");
+                        new File("src/main/resources/data.txt"));
+                log.info("All tasks was deleted from list");
+                log.info("List is empty");
                 notificationManager.setTaskList(taskList);
-                if (taskList.size() == 0) {
-                    MainForm.disableButtons();
-                    log.info("List is empty");
-                }
-                i++;
-                break;
+                mainForm.disableButtons();
             }
-        }
-        if (i == 0) {
-            JOptionPane.showMessageDialog(null,
-                     "Chosen task already does not exist",
-                    "No such task.", JOptionPane.ERROR_MESSAGE);
-            log.error("No such task");
         }
     }
 
-    static public boolean editTask(JComboBox<String> titleList, JTextField titleField,
-                                   JCheckBox activeField,
-                                   JCheckBox repetitive, JTextField timeField,
-                                   JTextField startTime, JTextField endTime,
-                                   JTextField intervalField, JComboBox<String> unit) {
-        //read data from fields
-        Task task = taskList.getTask(titleList.getSelectedIndex());
-        String title = titleField.getText();
-        try {
-            if (title.equals("")) {
-                titleMessage();
-                return false;
+    public static class RepeatedActionAdd implements ItemListener {
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                //show fields for repetitive task
+                addTaskForm.showRepetitiveFields();
+            } else {
+                //hide fields for repetitive task
+                addTaskForm.hideRepetitiveFields();
             }
-            int max = 0;
-            int i = 0;
-            for (Object task1 : taskList) {
-                if (!task.equals(task1)) {
+        }
+    }
+
+    public static class RepeatedActionEdit implements ItemListener {
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                //show fields for repetitive task
+                editTaskForm.showRepetitiveFields();
+            } else {
+                //hide fields for repetitive task
+                editTaskForm.hideRepetitiveFields();
+            }
+        }
+    }
+
+    public static class AddSave implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String title = addTaskForm.getTaskTitle();
+            if (title.equals("")) {
+                addTaskForm.exceptionMessages(
+                        new IllegalArgumentException("Fill field for title."));
+            } else {
+                int max = 0;
+                int i = 0;
+                for (Object task1 : taskList) {
                     String title1 = ((Task) task1).getTitle();
                     if (Pattern.matches("^" + title + " [0-9]$", title1)) {
                         i = Integer.parseInt(title1, title1.length() - 1,
                                 title1.length(), 10) + 1;
-                    } else if (Pattern.matches("^" + title + " [0-9]{2}$", title1)) {
-                        i = Integer.parseInt(((Task) task1).getTitle(), title1.length() - 2,
+                    } else if (Pattern.matches(
+                            "^" + title + " [0-9]{2}$", title1)) {
+                        i = Integer.parseInt(((Task) task1).getTitle(),
+                                title1.length() - 2,
                                 title1.length(), 10) + 1;
                     } else if (title.equals(title1)) {
                         i = 1;
@@ -322,94 +194,149 @@ public class Controller {
                         max = i;
                     }
                 }
-            }
-            if (max > 0) {
-                //add index if task with set title already exist
-                title = title + " " + max;
-            }
-            if (repetitive.isSelected()) {
-                LocalDateTime start =
-                        LocalDateTime.parse(startTime.getText(), formatter);
-                LocalDateTime end =
-                        LocalDateTime.parse(endTime.getText(), formatter);
-                int interval;
-                switch (unit.getSelectedIndex()){
-                    case 0:
-                        interval = (int) (Double.parseDouble(
-                                intervalField.getText()) * 60);
-                        break;
-                    case 2:
-                        interval = (int) (Double.parseDouble(
-                                intervalField.getText()) * 86400);
-                        break;
-                    default:
-                        interval = (int) (Double.parseDouble(
-                                intervalField.getText()) * 3600);
-                        break;
+                if (max > 0) {
+                    //add index if task with set title already exist
+                    title = title + " " + max;
                 }
-                task.setTime(start, end, interval);
-            } else {
-                LocalDateTime time = LocalDateTime.parse(
-                        timeField.getText(), formatter);
-                task.setTime(time); //create non repetitive task
+                Task task = null;
+                if (addTaskForm.repetitive()) {
+                    LocalDateTime start = addTaskForm.getStartTime();
+                    LocalDateTime end = addTaskForm.getEndTime();
+                    int interval = addTaskForm.getInterval();
+                    //create repetitive task
+                    if (start != null && end != null) {
+                        try {
+                            task = new Task(title, start, end, interval);
+                        } catch (Exception exception) {
+                            addTaskForm.exceptionMessages(exception);
+                        }
+                    }
+                } else {
+                    LocalDateTime time = addTaskForm.getTime();
+                    if (time != null) {
+                        try {
+                            //create non repetitive task
+                            task = new Task(title, time);
+                        } catch (Exception exception) {
+                            addTaskForm.exceptionMessages(exception);
+                        }
+                    }
+                }
+                if (task != null) {
+                    task.setActive(addTaskForm.active());
+                    taskList.add(task); //add created task to the list
+                    //write list to the file
+                    TaskIO.writeText(taskList,
+                            new File("src/main/resources/data.txt"));
+                    if (taskList.size() == 1) {
+                        //if list was empty enable all buttons on MainForm
+                        mainForm.enableButtons();
+                    }
+                    addTaskForm.message();
+                    log.info("Task was added to list");
+                    notificationManager.setTaskList(taskList);
+                    addTaskForm.dispose();
+                    addTaskForm = null;
+                }
             }
-            task.setTitle(title);
-            task.setActive(activeField.isSelected());
-            TaskIO.writeText(taskList,
-                    new File("src/main/resources/data.txt")); //write list to the file
-            JOptionPane.showMessageDialog(null,
-                    "Task was edited successfully.",
-                    "Message", JOptionPane.INFORMATION_MESSAGE);
-            log.info("Task was edited");
-            notificationManager.setTaskList(taskList);
-            return true;
-        } catch (DateTimeParseException exception) {
-            dateMessage(exception);
-            return false;
-        } catch (NumberFormatException exception) {
-            intervalMessage(exception);
-            return false;
-        } catch (IllegalArgumentException exception) {
-            datesMessage(exception);
-            return false;
         }
     }
 
-    public static void deleteAll() {
-        taskList = new ArrayTaskList();
-        TaskIO.writeText(taskList,
-                new File("src/main/resources/data.txt")); //write list to the file
-        log.info("All tasks was deleted from list");
-        log.info("List is empty");
-        notificationManager.setTaskList(taskList);
-        MainForm.disableButtons();
+    public static class Delete implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String title = deleteTaskForm.getTaskTitle();
+            for (Object task:taskList) {
+                if (((Task) task).getTitle().equals(title)) {
+                    taskList.remove((Task) task); //delete chosen task from list
+                    //write list to the file
+                    TaskIO.writeText(taskList,
+                            new File("src/main/resources/data.txt"));
+                    log.info("Task was deleted from list");
+                    notificationManager.setTaskList(taskList);
+                    deleteTaskForm.message();
+                    deleteTaskForm.dispose();
+                    if (taskList.size() == 0) {
+                        mainForm.disableButtons();
+                        log.info("List is empty");
+                    }
+                    deleteTaskForm = null;
+                    break;
+                }
+            }
+        }
     }
 
-    private static void titleMessage() {
-        JOptionPane.showMessageDialog(null,
-                "Fill field for title.",
-                "Empty title field", JOptionPane.ERROR_MESSAGE);
-        log.error("Attempt to add task with empty title");
-    }
-
-    private static void intervalMessage(NumberFormatException exception) {
-        JOptionPane.showMessageDialog(null,
-                "Interval should be a number.",
-                "Incorrect interval format", JOptionPane.ERROR_MESSAGE);
-        log.error("Incorrect interval format." + exception);
-    }
-
-    private static void datesMessage(Exception exception) {
-        JOptionPane.showMessageDialog(null,
-                exception,
-                "Incorrect dates or interval", JOptionPane.ERROR_MESSAGE);
-        log.error(exception);
-    }
-
-    private static void dateMessage(DateTimeParseException exception) {
-        JOptionPane.showMessageDialog(null,
-                "Fill field for time with format 'yyyy-MM-dd HH:mm'.",
-                "Incorrect time format", JOptionPane.ERROR_MESSAGE);
-        log.error("Incorrect time format. " + exception);
+    public static class EditSave implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //read data from fields
+            Task task = taskList.getTask(editTaskForm.getTitleIndex());
+            String title = editTaskForm.getTaskTitle();
+            if (title.equals("")) {
+                editTaskForm.exceptionMessages(new IllegalArgumentException(
+                        "Fill field for title."));
+            } else {
+                int max = 0;
+                int i = 0;
+                for (Object task1 : taskList) {
+                    if(!task.equals(task1)) {
+                        String title1 = ((Task) task1).getTitle();
+                        if (Pattern.matches("^" + title + " [0-9]$", title1)) {
+                            i = Integer.parseInt(title1, title1.length() - 1,
+                                    title1.length(), 10) + 1;
+                        } else if (Pattern.matches(
+                                "^" + title + " [0-9]{2}$", title1)) {
+                            i = Integer.parseInt(((Task) task1).getTitle(),
+                                    title1.length() - 2,
+                                    title1.length(), 10) + 1;
+                        } else if (title.equals(title1)) {
+                            i = 1;
+                        }
+                        if (i > max) {
+                            max = i;
+                        }
+                    }
+                }
+                if (max > 0) {
+                    //add index if task with set title already exist
+                    title = title + " " + max;
+                }
+                if (editTaskForm.repetitive()) {
+                    LocalDateTime start = editTaskForm.getStartTime();
+                    LocalDateTime end = editTaskForm.getEndTime();
+                    int interval = editTaskForm.getInterval();
+                    //create repetitive task
+                    if (start != null && end != null) {
+                        try {
+                            task.setTime(start, end, interval);
+                        } catch (Exception exception) {
+                            editTaskForm.exceptionMessages(exception);
+                        }
+                    }
+                } else {
+                    LocalDateTime time = editTaskForm.getTime();
+                    if (time != null) {
+                        try {
+                            task.setTime(time);
+                        } catch (Exception exception) {
+                            editTaskForm.exceptionMessages(exception);
+                        }
+                    }
+                }
+                if (task != null) {
+                    task.setTitle(title);
+                    task.setActive(editTaskForm.active());
+                    //write list to the file
+                    TaskIO.writeText(taskList,
+                            new File("src/main/resources/data.txt"));
+                    editTaskForm.message();
+                    log.info("Task was edited");
+                    notificationManager.setTaskList(taskList);
+                    editTaskForm.dispose();
+                    editTaskForm = null;
+                }
+            }
+        }
     }
 }

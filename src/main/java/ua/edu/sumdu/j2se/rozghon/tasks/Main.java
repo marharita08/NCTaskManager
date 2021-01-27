@@ -6,8 +6,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		log.info("Start");
-		new MainForm(); //create MainForm
-		Controller.readData(); //read data from file to buffer
+		MainForm mainForm = new MainForm(); //create MainForm
+		Controller.readData(mainForm); //read data from file to buffer
 		Controller.createNotificationManager();
 	}
 }

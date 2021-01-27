@@ -4,10 +4,7 @@ import ua.edu.sumdu.j2se.rozghon.tasks.controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -29,14 +26,22 @@ public class AddTaskForm extends JFrame {
 
     public AddTaskForm() {
         super("Add Task");
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         createContent();
         addToolTips();
         fillContent();
         setIconImage(Toolkit.getDefaultToolkit().getImage(
                 "src/main/resources/task.png"));
         setSize(300, 220);
+        this.setTitle("Add Task");
         setVisible(true);
+    }
+
+    @Override
+    protected void processWindowEvent(WindowEvent e) {
+        if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+            dispose();
+            Controller.closeAddForm();
+        }
     }
 
     private void createContent() {
@@ -53,7 +58,7 @@ public class AddTaskForm extends JFrame {
         repetitive = new JCheckBox("repetitive");
         checkPanel.add(active);
         checkPanel.add(repetitive);
-        repetitive.addItemListener(new RepeatedAction());
+        repetitive.addItemListener(new Controller.RepeatedActionAdd());
         timePanel = new JPanel();
         JLabel timeLabel = new JLabel("Time:");
         timeField = new JTextField(LocalDateTime.now().format(formatter));
@@ -86,7 +91,7 @@ public class AddTaskForm extends JFrame {
         intervalPanel.setVisible(false);
         //add button for saving
         JButton save = new JButton("Save");
-        save.addActionListener(new AddSave());
+        save.addActionListener(new Controller.AddSave());
         checkPanel.add(save);
     }
 
@@ -114,32 +119,105 @@ public class AddTaskForm extends JFrame {
         setContentPane(contents);
     }
 
-    public class RepeatedAction implements ItemListener {
-        @Override
-        public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                //show fields for repetitive task
-                timePanel.setVisible(false);
-                startPanel.setVisible(true);
-                endPanel.setVisible(true);
-                intervalPanel.setVisible(true);
-            } else {
-                //hide fields for repetitive task
-                timePanel.setVisible(true);
-                startPanel.setVisible(false);
-                endPanel.setVisible(false);
-                intervalPanel.setVisible(false);
-            }
+    public String getTaskTitle() {
+        return titleField.getText();
+    }
+
+    public LocalDateTime getTime() {
+        try {
+            return LocalDateTime.parse(
+                    timeField.getText(), formatter);
+        } catch (DateTimeParseException exception) {
+            exceptionMessages(exception);
+            return null;
         }
     }
 
-    public class AddSave implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (Controller.addTask(titleField, active, repetitive,
-                    timeField, startField, endField, intervalField, unit)) {
-                dispose(); //close form if task was added successfully
+    public LocalDateTime getStartTime() {
+        try {
+            return LocalDateTime.parse(
+                    startField.getText(), formatter);
+        } catch (DateTimeParseException exception) {
+            exceptionMessages(exception);
+            return null;
+        }
+    }
+
+    public LocalDateTime getEndTime() {
+        try {
+            return LocalDateTime.parse(
+                    endField.getText(), formatter);
+        } catch (DateTimeParseException exception) {
+            exceptionMessages(exception);
+            return null;
+        }
+    }
+
+    public int getInterval() {
+        try {
+            switch (unit.getSelectedIndex()) {
+                case 0:
+                    return (int) (Double.parseDouble(
+                            intervalField.getText()) * 60);
+                case 2:
+                    return (int) (Double.parseDouble(
+                            intervalField.getText()) * 86400);
+                default:
+                    return (int) (Double.parseDouble(
+                            intervalField.getText()) * 3600);
             }
+        } catch (NumberFormatException e) {
+            exceptionMessages(e);
+            return 0;
+        }
+    }
+
+    public boolean active() {
+        return active.isSelected();
+    }
+
+    public boolean repetitive() {
+        return repetitive.isSelected();
+    }
+
+    public void showRepetitiveFields() {
+        //show fields for repetitive task
+        timePanel.setVisible(false);
+        startPanel.setVisible(true);
+        endPanel.setVisible(true);
+        intervalPanel.setVisible(true);
+    }
+
+    public void hideRepetitiveFields() {
+        //hide fields for repetitive task
+        timePanel.setVisible(true);
+        startPanel.setVisible(false);
+        endPanel.setVisible(false);
+        intervalPanel.setVisible(false);
+    }
+
+    public void message() {
+        JOptionPane.showMessageDialog(null,
+                "Task was added successfully.",
+                "Message", JOptionPane.INFORMATION_MESSAGE);
+        //dispose();
+    }
+
+    public void exceptionMessages(Exception exception) {
+        if (exception instanceof DateTimeParseException) {
+            JOptionPane.showMessageDialog(null,
+                    "Fill field for time with format 'yyyy-MM-dd HH:mm'.",
+                    "Incorrect time format", JOptionPane.ERROR_MESSAGE);
+            log.error("Incorrect time format. " + exception);
+        } else if (exception instanceof NumberFormatException) {
+            JOptionPane.showMessageDialog(null,
+                    "Interval should be a number.",
+                    "Incorrect interval format", JOptionPane.ERROR_MESSAGE);
+            log.error("Incorrect interval format." + exception);
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            log.error(exception);
         }
     }
 }
