@@ -107,12 +107,16 @@ public abstract class AbstractTaskList
 
     @Override
     public String toString() {
-        String str = "\n" +  getClass().getName() + "\n"
-                + "Hash Code: " + hashCode() + "\n{";
+        StringBuilder stringBuilder = new StringBuilder("\n");
+        stringBuilder.append(getClass().getName());
+        stringBuilder.append("\n");
+        stringBuilder.append("Hash code: ");
+        stringBuilder.append(hashCode());
+        stringBuilder.append("\n{");
         for (int i = 0; i < size; i++) {
-            str = str + getTask(i).toString();
+            stringBuilder.append(getTask(i).toString());
         }
-        str = str + "}";
-        return str;
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 }

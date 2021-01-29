@@ -28,15 +28,16 @@ public class ScreenNotification implements Notification {
                 log.error(e);
             }
             //create text of message
-            String text = "";
+            StringBuilder stringBuilder = new StringBuilder();
             int i = 0;
             for (Task task : set) {
-                text = text + task.getTitle();
+                stringBuilder.append(task.getTitle());
                 if (i < set.size() - 1) {
-                    text = text + ", ";
+                    stringBuilder.append(", ");
                 }
                 i++;
             }
+            String text = stringBuilder.toString();
             trayIcon.setToolTip("Notification: " + text); //add toolTip
             System.out.println(LocalDateTime.now().format(formatter) + " Notification: " + text);
             Toolkit.getDefaultToolkit().beep(); //add sound

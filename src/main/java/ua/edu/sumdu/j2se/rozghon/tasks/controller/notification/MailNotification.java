@@ -46,15 +46,16 @@ public class MailNotification implements Notification {
                     InternetAddress.parse(properties.getProperty("recipient")));
             message.setSubject("Notification"); //add heading of message
             //add text of message
-            String text = "";
+            StringBuilder stringBuilder = new StringBuilder();
             int i = 0;
             for (Task task : set) {
-                text = text + task.getTitle();
+                stringBuilder.append(task.getTitle());
                 if (i < set.size() - 1) {
-                    text = text + ", ";
+                    stringBuilder.append(", ");
                 }
                 i++;
             }
+            String text = stringBuilder.toString();
             message.setText(text);
             Transport.send(message); //send message
             log.info("sent notification");
