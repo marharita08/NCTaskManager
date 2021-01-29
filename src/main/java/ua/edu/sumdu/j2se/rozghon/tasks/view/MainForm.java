@@ -99,6 +99,7 @@ public class MainForm extends JFrame {
     }
 
     public void enableButtons() {
+        //enable all buttons on MainForm
         showTasks.setEnabled(true);
         calendar.setEnabled(true);
         deleteTask.setEnabled(true);
@@ -106,7 +107,11 @@ public class MainForm extends JFrame {
         deleteAllTasks.setEnabled(true);
     }
 
-    public static void disableButtons() {
+    public void disableButtons() {
+        JOptionPane.showMessageDialog(
+                null, "Your task list is empty.",
+                "Message", JOptionPane.INFORMATION_MESSAGE);
+        //disable all buttons apart 'Add task' on MainForm
         showTasks.setEnabled(false);
         calendar.setEnabled(false);
         editTask.setEnabled(false);
@@ -177,15 +182,16 @@ public class MainForm extends JFrame {
         model.addColumn("Task");
         for (Map.Entry<LocalDateTime, Set<Task>> entry : map.entrySet()) {
             Set<Task> set = entry.getValue();
-            String text = "";
+            StringBuilder stringBuilder = new StringBuilder();
             int j = 0;
             for (Task task:set) {
-                text = text + task.getTitle();
+                stringBuilder.append(task.getTitle());
                 if (j < set.size() - 1) {
-                    text = text + ", ";
+                    stringBuilder.append(", ");
                 }
                 j++;
             }
+            String text = stringBuilder.toString();
             model.addRow(new Object[]{entry.getKey().format(formatter), text});
         }
     }

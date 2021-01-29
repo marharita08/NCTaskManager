@@ -39,7 +39,7 @@ public class NotificationManager extends Thread {
                     Tasks.calendar(taskList, from, to);
             if (map.isEmpty()) {
                 try {
-                    log.info("Map is empty. Wait hour");
+                    log.info("Map is empty. Wait an hour");
                     synchronized (this) {
                         //if no tasks are detected for the next hour
                         //wait an hour

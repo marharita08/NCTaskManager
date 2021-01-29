@@ -20,7 +20,7 @@ public class MailSettings extends JFrame {
     private File file;
     private Properties properties;
 
-    MailSettings() {
+    public MailSettings() {
         super("Mail settings");
         JPanel panel1 = new JPanel();
         JLabel label = new JLabel("Current mail for notification:");

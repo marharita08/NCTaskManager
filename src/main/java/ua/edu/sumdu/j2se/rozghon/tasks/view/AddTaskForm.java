@@ -1,5 +1,6 @@
 package ua.edu.sumdu.j2se.rozghon.tasks.view;
 
+import org.apache.log4j.Logger;
 import ua.edu.sumdu.j2se.rozghon.tasks.controller.Controller;
 
 import javax.swing.*;
@@ -7,6 +8,7 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class AddTaskForm extends JFrame {
     private JPanel titlePanel;
@@ -23,6 +25,9 @@ public class AddTaskForm extends JFrame {
     private JTextField endField;
     private JTextField intervalField;
     private JComboBox<String> unit;
+    private static final DateTimeFormatter formatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final Logger log = Logger.getLogger(AddTaskForm.class);
 
     public AddTaskForm() {
         super("Add Task");
@@ -44,8 +49,6 @@ public class AddTaskForm extends JFrame {
     }
 
     private void createContent() {
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         //add fields for input tasks parameters
         titlePanel = new JPanel();
         JLabel titleLabel = new JLabel("Title:");

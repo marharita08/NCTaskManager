@@ -50,7 +50,7 @@ public class Task implements Cloneable, Serializable {
             throw new IllegalArgumentException(
                     "Start and end should be not null.");
         }
-        if (start.isAfter(end)) {
+        if (!end.isAfter(start)) {
             throw new IllegalArgumentException(
                     "Start should be before end.");
         }
@@ -186,9 +186,15 @@ public class Task implements Cloneable, Serializable {
             throw new IllegalArgumentException(
                     "Start and end should be not null.");
         }
-        if (start.isAfter(end)) {
+        if (!end.isAfter(start)) {
             throw new IllegalArgumentException(
                     "Start should be before end.");
+        }
+        Duration duration = Duration.between(start, end);
+        int diff = (int)Math.abs(duration.toSeconds());
+        if (interval <= 0 || interval >= diff) {
+            throw new IllegalArgumentException("Interval should more than zero "
+                    + "and less than difference between end and start.");
         }
         this.start = start;
         this.end = end;
@@ -231,7 +237,7 @@ public class Task implements Cloneable, Serializable {
                             diff / interval) + 1) * interval);
                 }
             }
-        } else if (active && !repeated && current.isBefore(time)) {
+        } else if (active && current.isBefore(time)) {
             return time;
         }
         return null;
