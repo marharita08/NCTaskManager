@@ -140,6 +140,10 @@ public class EditTaskForm extends JFrame {
         setContentPane(contents);
     }
 
+    /**
+     * Method fills fields for task editing with properties of chosen task.
+     * @param taskList current task list
+     */
     public void fillEditFields(AbstractTaskList taskList) {
         String title = String.valueOf(comboBox.getSelectedItem());
         for (Object task1:taskList) {
@@ -192,6 +196,10 @@ public class EditTaskForm extends JFrame {
         Controller.getInstance().closeEditForm();
     }
 
+    /**
+     * Method hides field for task time
+     * and shows fields for repetitive task.
+     */
     public void showRepetitiveFields() {
         //show fields for repetitive task
         timePanel.setVisible(false);
@@ -200,6 +208,10 @@ public class EditTaskForm extends JFrame {
         intervalPanel.setVisible(true);
     }
 
+    /**
+     * Method shows field for task time
+     * and hides fields for repetitive task.
+     */
     public void hideRepetitiveFields() {
         //hide fields for repetitive task
         timePanel.setVisible(true);
@@ -208,14 +220,27 @@ public class EditTaskForm extends JFrame {
         intervalPanel.setVisible(false);
     }
 
-    public String getTaskTitle(){
+    /**
+     * Method for getting task title from the field.
+     * @return text of field for title
+     */
+    public String getTaskTitle() {
         return titleField.getText();
     }
 
+    /**
+     * Method for getting index of chosen title from comboBox.
+     * @return index of chosen title
+     */
     public int getTitleIndex() {
         return comboBox.getSelectedIndex();
     }
 
+    /**
+     * Method for getting task time from the field.
+     * Convert text from the field for time into LocalDataTime.
+     * @return task time; null if time format is incorrect
+     */
     public LocalDateTime getTime() {
         try {
             return LocalDateTime.parse(
@@ -226,6 +251,11 @@ public class EditTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for getting task start time from the field.
+     * Convert text from the field for start time into LocalDataTime.
+     * @return task start time; null if time format is incorrect
+     */
     public LocalDateTime getStartTime() {
         try {
             return LocalDateTime.parse(
@@ -236,6 +266,11 @@ public class EditTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for getting task end time from the field.
+     * Convert text from the field for end time into LocalDataTime.
+     * @return task end time; null if time format is incorrect
+     */
     public LocalDateTime getEndTime() {
         try {
             return LocalDateTime.parse(
@@ -246,14 +281,28 @@ public class EditTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for getting task end time from the field.
+     * Convert text from the field for end time into LocalDataTime.
+     * @return task end time; null if time format is incorrect
+     */
     public boolean active() {
         return active.isSelected();
     }
 
+    /**
+     * Method for getting task repetitive from checkbox.
+     * @return state of checkbox for task repetitive
+     */
     public boolean repetitive() {
         return repetitive.isSelected();
     }
 
+    /**
+     * Method for getting task interval from the field.
+     * Convert text from the field for interval into int.
+     * @return task interval; 0 if text can't be converted to int
+     */
     public int getInterval() {
         try {
             switch (unit.getSelectedIndex()) {
@@ -273,12 +322,19 @@ public class EditTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for showing information message.
+     */
     public void message() {
         JOptionPane.showMessageDialog(null,
                 "Task was edited successfully.",
                 "Message", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Method shows error messages according to getting exception.
+     * @param exception getting exception
+     */
     public void exceptionMessages(Exception exception) {
         if (exception instanceof DateTimeParseException) {
             JOptionPane.showMessageDialog(null,

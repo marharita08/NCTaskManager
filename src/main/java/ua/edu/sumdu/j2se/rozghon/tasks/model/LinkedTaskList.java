@@ -16,6 +16,11 @@ public class LinkedTaskList extends AbstractTaskList {
         }
     }
 
+    /**
+     * Method for adding task to list.
+     * @param task task that adding to list
+     * @throws NullPointerException if task is not initialized
+     */
     public void add(Task task) throws NullPointerException {
         if (task == null) {
             throw new NullPointerException("Can't add empty pointer to list.");
@@ -37,6 +42,11 @@ public class LinkedTaskList extends AbstractTaskList {
         size++; //increase size of list
     }
 
+    /**
+     * Method for removing task from the list.
+     * @param task task that removing from the list
+     * @return true if removing finish successfully
+     */
     public boolean remove(Task task) {
         if (size == 0) { //can't remove anything, if list is empty
             return false;
@@ -81,6 +91,13 @@ public class LinkedTaskList extends AbstractTaskList {
         }
     }
 
+    /**
+     * Method for getting task by index.
+     * @param index task index
+     * @return task
+     * @throws IndexOutOfBoundsException if index more or equals
+     *                                   to the size of task list
+     */
     public Task getTask(int index) throws IndexOutOfBoundsException {
         if (index >= size) {
             throw new IndexOutOfBoundsException("List includes " + size
@@ -94,6 +111,10 @@ public class LinkedTaskList extends AbstractTaskList {
         return node.task; //return found task
     }
 
+    /**
+     * Method makes clone of current task list.
+     * @return clone of current task list
+     */
     @Override
     public Object clone() {
         try {

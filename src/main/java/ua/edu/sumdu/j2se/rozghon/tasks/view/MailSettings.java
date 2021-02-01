@@ -55,6 +55,9 @@ public class MailSettings extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Method fills text field with current mail.
+     */
     private void fillTextField() {
         String recipient = properties.getProperty("recipient");
         if (recipient != null) {
@@ -65,6 +68,11 @@ public class MailSettings extends JFrame {
 
     public class SaveAction implements ActionListener {
 
+        /**
+         * Method saves inputted mail address of recipient
+         * or delete mail address if field for mail is empty.
+         * @param e clicking the 'Save' button
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             //read address from textField
@@ -111,6 +119,11 @@ public class MailSettings extends JFrame {
         }
     }
 
+    /**
+     * Check inputted mail address using pattern.
+     * @param recipient mail address
+     * @return true if address matches to pattern
+     */
     public boolean checkAddress(String recipient) {
         String pattern =
                 "^(([a-zA-Z0-9])+[\\.-])*([a-zA-Z0-9])+"

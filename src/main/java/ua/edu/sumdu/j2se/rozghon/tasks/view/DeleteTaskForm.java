@@ -47,10 +47,17 @@ public class DeleteTaskForm extends JFrame {
         setContentPane(contents);
     }
 
+    /**
+     * Method for getting chosen task title from comboBox.
+     * @return chosen task title
+     */
     public String getTaskTitle() {
         return String.valueOf(comboBox.getSelectedItem());
     }
 
+    /**
+     * Method for showing information message.
+     */
     public void message() {
         JOptionPane.showMessageDialog(null,
                 "Task was deleted successfully.",

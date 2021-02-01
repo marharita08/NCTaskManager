@@ -121,10 +121,19 @@ public class AddTaskForm extends JFrame {
         setContentPane(contents);
     }
 
+    /**
+     * Method for getting task title from the field.
+     * @return text of field for title
+     */
     public String getTaskTitle() {
         return titleField.getText();
     }
 
+    /**
+     * Method for getting task time from the field.
+     * Convert text from the field for time into LocalDataTime.
+     * @return task time; null if time format is incorrect
+     */
     public LocalDateTime getTime() {
         try {
             return LocalDateTime.parse(
@@ -135,6 +144,11 @@ public class AddTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for getting task start time from the field.
+     * Convert text from the field for start time into LocalDataTime.
+     * @return task start time; null if time format is incorrect
+     */
     public LocalDateTime getStartTime() {
         try {
             return LocalDateTime.parse(
@@ -145,6 +159,11 @@ public class AddTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for getting task end time from the field.
+     * Convert text from the field for end time into LocalDataTime.
+     * @return task end time; null if time format is incorrect
+     */
     public LocalDateTime getEndTime() {
         try {
             return LocalDateTime.parse(
@@ -155,6 +174,11 @@ public class AddTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for getting task interval from the field.
+     * Convert text from the field for interval into int.
+     * @return task interval; 0 if text can't be converted to int
+     */
     public int getInterval() {
         try {
             switch (unit.getSelectedIndex()) {
@@ -174,36 +198,57 @@ public class AddTaskForm extends JFrame {
         }
     }
 
+    /**
+     * Method for getting task activity from checkbox.
+     * @return state of checkbox for task activity
+     */
     public boolean active() {
         return active.isSelected();
     }
 
+    /**
+     * Method for getting task repetitive from checkbox.
+     * @return state of checkbox for task repetitive
+     */
     public boolean repetitive() {
         return repetitive.isSelected();
     }
 
+    /**
+     * Method hides field for task time
+     * and shows fields for repetitive task.
+     */
     public void showRepetitiveFields() {
-        //show fields for repetitive task
         timePanel.setVisible(false);
         startPanel.setVisible(true);
         endPanel.setVisible(true);
         intervalPanel.setVisible(true);
     }
 
+    /**
+     * Method shows field for task time
+     * and hides fields for repetitive task.
+     */
     public void hideRepetitiveFields() {
-        //hide fields for repetitive task
         timePanel.setVisible(true);
         startPanel.setVisible(false);
         endPanel.setVisible(false);
         intervalPanel.setVisible(false);
     }
 
+    /**
+     * Method for showing information message.
+     */
     public void message() {
         JOptionPane.showMessageDialog(null,
                 "Task was added successfully.",
                 "Message", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Method shows error messages according to getting exception.
+     * @param exception getting exception
+     */
     public void exceptionMessages(Exception exception) {
         if (exception instanceof DateTimeParseException) {
             JOptionPane.showMessageDialog(null,

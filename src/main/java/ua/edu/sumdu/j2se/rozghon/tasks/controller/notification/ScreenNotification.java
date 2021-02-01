@@ -14,6 +14,10 @@ public class ScreenNotification implements Notification {
     private static final DateTimeFormatter formatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    /**
+     * Method for sending screen notification.
+     * @param set tasks for which user has to get notification
+     */
     @Override
     public void sendNotification(Set<Task> set) {
         if (SystemTray.isSupported()) {

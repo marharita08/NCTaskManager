@@ -35,6 +35,11 @@ public class Controller {
         createNotificationManager();
     }
 
+    /**
+     * Method for getting current object of controller.
+     * Method creates object of controller if it didn't created yet.
+     * @return current object of controller
+     */
     public static Controller getInstance() {
         if (instance == null) {
             instance = new Controller();
@@ -42,6 +47,10 @@ public class Controller {
         return instance;
     }
 
+    /**
+     * Method for setting of MainForm.
+     * @param form main form of application
+     */
     public void setMainForm(MainForm form) {
         mainForm = form;
         if (taskList.size() == 0) {
@@ -67,6 +76,10 @@ public class Controller {
 
     public static class DeleteTask implements ActionListener {
 
+        /**
+         * Method for creation of form for task deleting.
+         * @param e choosing of menu item 'Delete Task'
+         */
         public void actionPerformed(ActionEvent e) {
             if (deleteTaskForm == null) {
                 deleteTaskForm = new DeleteTaskForm(taskList);
@@ -80,6 +93,10 @@ public class Controller {
 
     public static class AddTask implements ActionListener {
 
+        /**
+         * Method for creation of form for task adding.
+         * @param e choosing of menu item 'Add Task'
+         */
         public void actionPerformed(ActionEvent e) {
             if (addTaskForm == null) {
                 addTaskForm = new AddTaskForm();
@@ -93,6 +110,10 @@ public class Controller {
 
     public static class EditTask implements ActionListener {
 
+        /**
+         * Method for creation of form for task editing.
+         * @param e choosing of menu item 'Edit Task'
+         */
         public void actionPerformed(ActionEvent e) {
             if (editTaskForm == null) {
                 editTaskForm = new EditTaskForm(taskList);
@@ -102,6 +123,10 @@ public class Controller {
 
     public static class MailAction implements ActionListener {
 
+        /**
+         * Method for creation of form for mail settings.
+         * @param e choosing of menu item 'Mail Settings'
+         */
         public void actionPerformed(ActionEvent e) {
             new MailSettings();
         }
@@ -109,6 +134,10 @@ public class Controller {
 
     public static class ShowTaskAction implements ActionListener {
 
+        /**
+         * Method for showing all tasks in the list.
+         * @param e clicking the 'Show All Tasks' button
+         */
         public void actionPerformed(ActionEvent e) {
             mainForm.showTasks(taskList);
         }
@@ -116,8 +145,12 @@ public class Controller {
 
     public static class EditAction implements ActionListener {
 
+        /**
+         * Method use method from EditTaskForm
+         * to fill fields on the form for editing.
+         * @param e clicking the 'Edit' button
+         */
         public void actionPerformed(ActionEvent e) {
-            //fill fields with parameters of chosen task
             editTaskForm.fillEditFields(taskList);
         }
     }
@@ -128,6 +161,11 @@ public class Controller {
 
     public static class CalendarAction implements ActionListener {
 
+        /**
+         * Method use method from MainForm
+         * to write calendar of tasks on the main form.
+         * @param e clicking the 'Calendar' button
+         */
         public void actionPerformed(ActionEvent e) {
             mainForm.showCalendar(taskList);
         }
@@ -135,6 +173,10 @@ public class Controller {
 
     public static class DeleteAllAction implements ActionListener {
 
+        /**
+         * Method for deleting of all tasks from the list.
+         * @param e choosing of menu item 'Delete All Tasks'
+         */
         public void actionPerformed(ActionEvent e) {
             if (mainForm.confirmation()) {
                 taskList = new ArrayTaskList();
@@ -150,6 +192,12 @@ public class Controller {
     }
 
     public static class RepeatedActionAdd implements ItemListener {
+
+        /**
+         * Method use methods from AddTaskForm to show or hide fields
+         * for repetitive task according to item 'repetitive' state.
+         * @param e state change the 'repetitive' item
+         */
         @Override
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -163,6 +211,12 @@ public class Controller {
     }
 
     public static class RepeatedActionEdit implements ItemListener {
+
+        /**
+         * Method use methods from EditTaskForm to show or hide fields
+         * for repetitive task according to item 'repetitive' state.
+         * @param e state change the 'repetitive' item
+         */
         @Override
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -176,6 +230,12 @@ public class Controller {
     }
 
     public static class AddSave implements ActionListener {
+
+        /**
+         * Method that read task properties from task adding form
+         * and add task to the list.
+         * @param e clicking the 'Save' button
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             String title = addTaskForm.getTaskTitle();
@@ -251,6 +311,11 @@ public class Controller {
     }
 
     public static class Delete implements ActionListener {
+
+        /**
+         * Method for deleting of chosen task from the list.
+         * @param e clicking the 'Delete' button
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             String title = deleteTaskForm.getTaskTitle();
@@ -276,6 +341,12 @@ public class Controller {
     }
 
     public static class EditSave implements ActionListener {
+
+        /**
+         * Method that read task properties from task editing form
+         * and set this properties to the chosen task.
+         * @param e clicking the 'Save' button
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             //read data from fields
@@ -288,7 +359,7 @@ public class Controller {
                 int max = 0;
                 int i = 0;
                 for (Object task1 : taskList) {
-                    if(!task.equals(task1)) {
+                    if (!task.equals(task1)) {
                         String title1 = ((Task) task1).getTitle();
                         if (Pattern.matches("^" + title + " [0-9]$", title1)) {
                             i = Integer.parseInt(title1, title1.length() - 1,

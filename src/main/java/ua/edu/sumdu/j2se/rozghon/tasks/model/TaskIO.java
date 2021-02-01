@@ -9,6 +9,11 @@ import org.apache.log4j.Logger;
 public class TaskIO {
     private static final Logger log = Logger.getLogger(TaskIO.class);
 
+    /**
+     * Method writes task list to binary stream.
+     * @param tasks task list
+     * @param out binary stream for writing
+     */
     public static void write(AbstractTaskList tasks, OutputStream out) {
         try (DataOutputStream output = new DataOutputStream(out)) {
             output.writeInt(tasks.size());
@@ -29,6 +34,11 @@ public class TaskIO {
         }
     }
 
+    /**
+     * Method reads task list from binary stream.
+     * @param tasks task list
+     * @param in binary stream for reading
+     */
     public static void read(AbstractTaskList tasks, InputStream in) {
         try (DataInputStream input = new DataInputStream(in)) {
             int size = input.readInt();
@@ -55,6 +65,11 @@ public class TaskIO {
         }
     }
 
+    /**
+     * Method writes task list to file in binary format.
+     * @param tasks task list
+     * @param file file for writing
+     */
     public static void writeBinary(AbstractTaskList tasks, File file) {
         try (FileOutputStream output = new FileOutputStream(file)) {
             write(tasks, output);
@@ -63,6 +78,11 @@ public class TaskIO {
         }
     }
 
+    /**
+     * Method reads task list from file in binary format.
+     * @param tasks task list
+     * @param file file for reading
+     */
     public static void readBinary(AbstractTaskList tasks, File file) {
         try (FileInputStream input = new FileInputStream(file)) {
             read(tasks, input);
@@ -71,6 +91,11 @@ public class TaskIO {
         }
     }
 
+    /**
+     * Method writes task list to text stream.
+     * @param tasks task list
+     * @param out text stream for writing
+     */
     public static void write(AbstractTaskList tasks, Writer out) {
         Gson gson = new Gson();
         try (BufferedWriter output = new BufferedWriter(out)) {
@@ -80,6 +105,11 @@ public class TaskIO {
         }
     }
 
+    /**
+     * Method reads task list from text stream.
+     * @param tasks task list
+     * @param in text stream for reading
+     */
     public static void read(AbstractTaskList tasks, Reader in) {
         try (BufferedReader input = new BufferedReader(in)) {
             String text;
@@ -95,6 +125,12 @@ public class TaskIO {
             log.error(e);
         }
     }
+
+    /**
+     * Method writes task list to file in text format.
+     * @param tasks task list
+     * @param file file for writing
+     */
     public static void writeText(AbstractTaskList tasks, File file) {
         try (FileWriter output = new FileWriter(file)) {
             write(tasks, output);
@@ -103,6 +139,11 @@ public class TaskIO {
         }
     }
 
+    /**
+     * Method reads task list from file in text format.
+     * @param tasks task list
+     * @param file file for reading
+     */
     public static void readText(AbstractTaskList tasks, File file) {
         try (FileReader input = new FileReader(file)) {
             read(tasks, input);

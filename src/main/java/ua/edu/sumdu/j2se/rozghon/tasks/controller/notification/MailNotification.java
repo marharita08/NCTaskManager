@@ -32,6 +32,10 @@ public class MailNotification implements Notification {
         }
     }
 
+    /**
+     * Method for sending mail notification.
+     * @param set tasks for which user has to get notification
+     */
     public void sendNotification(Set<Task> set) {
         Session session = Session.getInstance(properties, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -67,10 +71,18 @@ public class MailNotification implements Notification {
         }
     }
 
+    /**
+     * Method checks activity of mail notifications.
+     * @return true if mail notifications are active
+     */
     public static boolean isActive() {
         return active;
     }
 
+    /**
+     * Method for setting mail notifications activity.
+     * @param act activity of mail notifications
+     */
     public static void setActive(boolean act) {
         active = act;
     }

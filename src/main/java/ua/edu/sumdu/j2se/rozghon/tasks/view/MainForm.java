@@ -98,8 +98,10 @@ public class MainForm extends JFrame {
         setContentPane(contents);
     }
 
+    /**
+     * Method enables all buttons on MainForm.
+     */
     public void enableButtons() {
-        //enable all buttons on MainForm
         showTasks.setEnabled(true);
         calendar.setEnabled(true);
         deleteTask.setEnabled(true);
@@ -107,11 +109,14 @@ public class MainForm extends JFrame {
         deleteAllTasks.setEnabled(true);
     }
 
+    /**
+     * Method disables all buttons apart 'Add task'
+     * and 'Mail Settings' on MainForm.
+     */
     public void disableButtons() {
         JOptionPane.showMessageDialog(
                 null, "Your task list is empty.",
                 "Message", JOptionPane.INFORMATION_MESSAGE);
-        //disable all buttons apart 'Add task' on MainForm
         showTasks.setEnabled(false);
         calendar.setEnabled(false);
         editTask.setEnabled(false);
@@ -119,6 +124,11 @@ public class MainForm extends JFrame {
         deleteAllTasks.setEnabled(false);
     }
 
+    /**
+     * Method writes tasks properties
+     * from the list to table on main form.
+     * @param taskList current task list
+     */
     public void showTasks(AbstractTaskList taskList) {
         //fill table with data about all tasks from list
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -158,6 +168,11 @@ public class MainForm extends JFrame {
         }
     }
 
+    /**
+     * Method fills table on the main form with
+     * calendar of active tasks on chosen period.
+     * @param taskList current task list
+     */
     public void showCalendar(AbstractTaskList taskList) {
         //fill table with data about active tasks in date-tasks format
         SortedMap<LocalDateTime, Set<Task>> map;
@@ -196,6 +211,10 @@ public class MainForm extends JFrame {
         }
     }
 
+    /**
+     * Method for confirmation of deletion of all tasks from the list.
+     * @return true if chosen option is 'Yes'
+     */
     public boolean confirmation() {
         return JOptionPane.showConfirmDialog(
                 null,

@@ -20,6 +20,10 @@ public class NotificationManager extends Thread {
         this.taskList = taskList;
     }
 
+    /**
+     * Method for refreshing current task list.
+     * @param taskList current task list
+     */
     public void setTaskList(AbstractTaskList taskList) {
         //refresh taskList
         this.taskList = taskList;
@@ -30,6 +34,9 @@ public class NotificationManager extends Thread {
         }
     }
 
+    /**
+     * Method tracks task time and sends notifications.
+     */
     public void run() {
         for (;;) {
             LocalDateTime from = LocalDateTime.now();
