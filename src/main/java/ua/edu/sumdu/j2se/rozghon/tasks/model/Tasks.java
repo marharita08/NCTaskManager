@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.rozghon.tasks;
+package ua.edu.sumdu.j2se.rozghon.tasks.model;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -7,6 +7,15 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class Tasks {
+    /**
+     * Method finds tasks in got task list that time between two dates.
+     * @param tasks task list
+     * @param from first date
+     * @param to second date
+     * @return list of tasks that time between first and second dates
+     * @throws IllegalArgumentException if task list is not initialized
+     *                 or if first date is after or equal to the second one
+     */
     public static Iterable<Task> incoming(Iterable<Task> tasks,
                                           LocalDateTime from,
                                           LocalDateTime to)
@@ -34,6 +43,14 @@ public class Tasks {
         return taskList;
     }
 
+    /**
+     * Method forms calendar of tasks
+     * from got task list that time between two dates.
+     * @param tasks task list
+     * @param start first date
+     * @param end second date
+     * @return map that include task time and set of tasks
+     */
     public static SortedMap<LocalDateTime,
             Set<Task>> calendar(Iterable<Task> tasks,
                                 LocalDateTime start,

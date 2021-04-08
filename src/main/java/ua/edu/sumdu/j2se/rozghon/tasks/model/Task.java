@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.rozghon.tasks;
+package ua.edu.sumdu.j2se.rozghon.tasks.model;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -13,14 +13,15 @@ public class Task implements Cloneable, Serializable {
     private boolean active;
     private boolean repeated;
 
-    public Task(){}
+    public Task() { }
     /**
      * Constructor that creates non repetitive task
      * @param title name of task
      * @param time time when task will be done,
      *             it should be a positive number
      */
-    public Task(String title, LocalDateTime time) throws IllegalArgumentException {
+    public Task(String title, LocalDateTime time)
+            throws IllegalArgumentException {
         if (time == null) {
             throw new IllegalArgumentException(
                     "Time should be not null.");
@@ -49,7 +50,7 @@ public class Task implements Cloneable, Serializable {
             throw new IllegalArgumentException(
                     "Start and end should be not null.");
         }
-        if (start.isAfter(end)) {
+        if (!end.isAfter(start)) {
             throw new IllegalArgumentException(
                     "Start should be before end.");
         }
@@ -181,13 +182,19 @@ public class Task implements Cloneable, Serializable {
      */
     public void setTime(LocalDateTime start, LocalDateTime end,
                         int interval) throws IllegalArgumentException {
-        if (start ==null || end == null) {
+        if (start == null || end == null) {
             throw new IllegalArgumentException(
                     "Start and end should be not null.");
         }
-        if (start.isAfter(end)) {
+        if (!end.isAfter(start)) {
             throw new IllegalArgumentException(
                     "Start should be before end.");
+        }
+        Duration duration = Duration.between(start, end);
+        int diff = (int)Math.abs(duration.toSeconds());
+        if (interval <= 0 || interval >= diff) {
+            throw new IllegalArgumentException("Interval should more than zero "
+                    + "and less than difference between end and start.");
         }
         this.start = start;
         this.end = end;
@@ -213,22 +220,24 @@ public class Task implements Cloneable, Serializable {
      * -1, if task is nonactive or if task is already done
      */
     public LocalDateTime nextTimeAfter(LocalDateTime current) {
-        if (active && repeated){
+        if (active && repeated) {
             Duration duration = Duration.between(start, end);
             long diff = Math.abs(duration.toSeconds());
-            if (current.isBefore(start.plusSeconds((diff / interval) * interval))) {
+            if (current.isBefore(start.plusSeconds(
+                    (diff / interval) * interval))) {
                 if (current.isBefore(start)) {
                     return start;
                 } else {
-                    if(start.equals(current)){
+                    if (start.equals(current)) {
                         return start.plusSeconds(interval);
                     }
                     duration = Duration.between(start, current);
                     diff = Math.abs(duration.toSeconds());
-                    return start.plusSeconds(((diff / interval) + 1) * interval);
+                    return start.plusSeconds(((
+                            diff / interval) + 1) * interval);
                 }
             }
-        } else if (active && !repeated && current.isBefore(time)) {
+        } else if (active && current.isBefore(time)) {
             return time;
         }
         return null;
@@ -259,10 +268,10 @@ public class Task implements Cloneable, Serializable {
         final int PRIME = 23;
         int result = 1;
         result = result * PRIME + title.hashCode();
-        if(!repeated) {
+        if (!repeated) {
             result = result * PRIME + time.hashCode();
         }
-        if(repeated) {
+        if (repeated) {
             result = result * PRIME + start.hashCode();
             result = result * PRIME + end.hashCode();
         }

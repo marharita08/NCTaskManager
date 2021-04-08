@@ -1,4 +1,4 @@
-package ua.edu.sumdu.j2se.rozghon.tasks;
+package ua.edu.sumdu.j2se.rozghon.tasks.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -6,13 +6,26 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class AbstractTaskList implements Iterable, Cloneable, Serializable {
+public abstract class AbstractTaskList
+        implements Iterable, Cloneable, Serializable {
     protected int size; //amount of elements in the list
 
+    /**
+     * Method for getting size of list.
+     * @return size of list
+     */
     public int size() {
         return size;
     }
 
+    /**
+     * Method finds tasks that time between two dates.
+     * @param from first date
+     * @param to second date
+     * @return list of tasks that time between first and second dates
+     * @throws IllegalArgumentException if first date
+     *                                  is after or equals to the second one
+     */
     public final AbstractTaskList incoming(LocalDateTime from,
                                            LocalDateTime to)
             throws IllegalArgumentException {
@@ -33,15 +46,39 @@ public abstract class AbstractTaskList implements Iterable, Cloneable, Serializa
         return taskList;
     }
 
-    public Stream<Task> getStream(){
+    /**
+     * Method transforms task list into stream.
+     * @return stream
+     */
+    public Stream<Task> getStream() {
         Iterable<Task> iterable = () -> this.iterator();
         return StreamSupport.stream(iterable.spliterator(), false);
     }
 
+    /**
+     * Method for adding task to list.
+     * @param task task that adding to list
+     */
     public abstract void add(Task task);
+
+    /**
+     * Method for removing task from the list.
+     * @param task task that removing from the list
+     * @return true if removing finish successfully
+     */
     public abstract boolean remove(Task task);
+
+    /**
+     * Method for getting task by index.
+     * @param index task index
+     * @return task
+     */
     public abstract Task getTask(int index);
 
+    /**
+     * Returns an iterator over tasks.
+     * @return an Iterator
+     */
     @Override
     public Iterator<Task> iterator() {
         return new Iterator<>() {
@@ -71,6 +108,11 @@ public abstract class AbstractTaskList implements Iterable, Cloneable, Serializa
         };
     }
 
+    /**
+     * Method for comparison of two task lists.
+     * @param obj second task list
+     * @return tru if current task list is equal to second task list
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -94,6 +136,10 @@ public abstract class AbstractTaskList implements Iterable, Cloneable, Serializa
         return equal;
     }
 
+    /**
+     * Method for getting hash code of task list.
+     * @return hash code
+     */
     @Override
     public int hashCode() {
         final int PRIME = 27;
@@ -104,14 +150,22 @@ public abstract class AbstractTaskList implements Iterable, Cloneable, Serializa
         return result;
     }
 
+    /**
+     * Method transforms task list into string.
+     * @return text representation of task list
+     */
     @Override
     public String toString() {
-        String str = "\n" +  getClass().getName() + "\n"
-                + "Hash Code: " + hashCode() + "\n{";
+        StringBuilder stringBuilder = new StringBuilder("\n");
+        stringBuilder.append(getClass().getName());
+        stringBuilder.append("\n");
+        stringBuilder.append("Hash code: ");
+        stringBuilder.append(hashCode());
+        stringBuilder.append("\n{");
         for (int i = 0; i < size; i++) {
-            str = str + getTask(i).toString();
+            stringBuilder.append(getTask(i).toString());
         }
-        str = str + "}";
-        return str;
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 }
