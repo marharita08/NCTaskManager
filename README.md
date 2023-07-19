@@ -43,13 +43,13 @@ Before getting started with the NCTaskManager application, ensure that you have 
 ## Screenshots
 
 <div align="center">
- <img src="screenshots/Screenshot_1.png" width=450>
- <img src="screenshots/Screenshot_2.png" width=450>
+ <img src="screenshots/Screenshot_1.png" width=420>
+ <img src="screenshots/Screenshot_2.png" width=420>
 </div>
 <div align="center">
- <img src="screenshots/Screenshot_3.png" width=450>
+ <img src="screenshots/Screenshot_3.png" width=420>
 </div>
 <div align="center">
- <img src="screenshots/Screenshot_4.png" width=250>
- <img src="screenshots/Screenshot_5.png" width=250>
+ <img src="screenshots/Screenshot_4.png" width=240>
+ <img src="screenshots/Screenshot_5.png" width=240>
 </div>
