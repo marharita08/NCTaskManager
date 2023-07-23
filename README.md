@@ -2,6 +2,10 @@
 
 NCTaskManager is a Java application designed for creating reminders. The application allows users to set up one-time or recurring reminders with specific intervals. Notifications can be sent via email or displayed as notifications on the computer.
 
+## Reasons for Development
+
+This project was developed as part of the Java development course.
+
 ## Features
 
 - Create one-time reminders with a specific date and time.
@@ -26,7 +30,7 @@ Before getting started with the NCTaskManager application, ensure that you have 
 ## Installation
 
 1. Clone this repository: `git clone https://github.com/marharita08/NCTaskManager`.
-2. Run `install.cmd`.
+2. Run `install.cmd` or `install.sh` depending on your OS.
 3. Configure `src/main/resources/mail.properties.txt` with following properties:
    
  | Property                  | Description                                                                                        |
@@ -38,7 +42,7 @@ Before getting started with the NCTaskManager application, ensure that you have 
  | mail.smtp.starttls.enable | Specifies whether the STARTTLS command is used to enable encryption for secure email communication |
  | mail.smtp.host            | The host name or IP address of the SMTP server                                                     |
 
-4. Run `run.cmd`.
+4. Run `run.cmd` or `run.sh`.
 
 ## Screenshots
 
